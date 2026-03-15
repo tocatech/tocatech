@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tocatech – Smart Security, Simplified</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #4fc3f7;
+      --dark:    #0d1b2a;
+      --card:    #1a2a3a;
+      --border:  #1e3a5f;
+      --muted:   #607d8b;
+      --text:    #e0e0e0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--dark);
+      z-index: 100;
+    }
+    .nav-logo { color: var(--blue); font-size: 22px; font-weight: bold; letter-spacing: 1px; }
+    .nav-links { display: flex; gap: 28px; font-size: 14px; }
+    .nav-links a { color: var(--text); }
+    .nav-links a:hover { color: var(--blue); text-decoration: none; }
+    .btn {
+      display: inline-block;
+      padding: 10px 24px;
+      background: var(--blue);
+      color: var(--dark);
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .btn:hover { opacity: 0.9; text-decoration: none; }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--blue);
+      color: var(--blue);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 90px 24px 80px;
+      background: linear-gradient(160deg, #0d1b2a 0%, #0a2540 60%, #0d1b2a 100%);
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      color: #fff;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .hero h1 span { color: var(--blue); }
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 36px;
+    }
+    .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── SECTION ── */
+    section { padding: 72px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    h2 { font-size: 30px; color: #fff; margin-bottom: 14px; }
+    .sub { color: var(--muted); font-size: 16px; max-width: 560px; margin-bottom: 48px; }
+
+    /* ── HOW IT WORKS ── */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
+    .step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 22px;
+      text-align: center;
+    }
+    .step-num {
+      width: 44px; height: 44px;
+      background: var(--blue);
+      color: var(--dark);
+      border-radius: 50%;
+      font-size: 20px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .step h3 { color: #fff; font-size: 16px; margin-bottom: 8px; }
+    .step p  { color: var(--muted); font-size: 14px; }
+
+    /* ── FEATURES ── */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .feature {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 26px 22px;
+    }
+    .feature-icon { font-size: 28px; margin-bottom: 12px; }
+    .feature h3 { color: #fff; font-size: 16px; margin-bottom: 8px; }
+    .feature p  { color: var(--muted); font-size: 14px; }
+
+    /* ── PRICING ── */
+    .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+    .plan {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px 26px;
+    }
+    .plan.featured {
+      border-color: var(--blue);
+      position: relative;
+    }
+    .plan-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--blue);
+      color: var(--dark);
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 14px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+    }
+    .plan-name  { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .plan-price { color: #fff; font-size: 38px; font-weight: bold; margin-bottom: 4px; }
+    .plan-price span { font-size: 16px; color: var(--muted); font-weight: normal; }
+    .plan-desc  { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+    .plan ul    { list-style: none; margin-bottom: 28px; }
+    .plan ul li {
+      color: var(--text);
+      font-size: 14px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .plan ul li::before { content: "✓  "; color: var(--blue); font-weight: bold; }
+    .plan .btn  { display: block; text-align: center; }
+
+    /* ── FAQ ── */
+    .faqs { max-width: 720px; }
+    details {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    summary { color: #fff; font-size: 15px; font-weight: bold; list-style: none; }
+    summary::after { content: " ▾"; color: var(--blue); float: right; }
+    details[open] summary::after { content: " ▴"; }
+    details p { color: var(--muted); font-size: 14px; margin-top: 10px; }
+
+    /* ── CTA ── */
+    .cta-band {
+      background: linear-gradient(135deg, #0a2540, #0d3b6e);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      padding: 72px 24px;
+    }
+    .cta-band h2 { color: #fff; font-size: 30px; margin-bottom: 14px; }
+    .cta-band p  { color: var(--muted); font-size: 16px; margin-bottom: 32px; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--muted); margin: 0 10px; }
+    footer a:hover { color: var(--blue); }
+
+    @media (max-width: 600px) {
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Tocatech</div>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="manual.html">Manual</a>
+  </div>
+  <a href="#pricing" class="btn">Get Started</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Security alerts that<br><span>actually reach you.</span></h1>
+  <p>Tocatech is a plug-and-play security device that detects motion and smoke — and emails you instantly, no app required.</p>
+  <div class="hero-btns">
+    <a href="#pricing" class="btn">View Plans</a>
+    <a href="manual.html" class="btn btn-outline">Read the Manual</a>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-label">How it works</div>
+  <h2>Set up in under 5 minutes</h2>
+  <p class="sub">No electrician. No app install. No complicated config. Just power on, connect to WiFi, and you're protected.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Power on</h3>
+      <p>Plug in your Tocatech device. It creates its own WiFi hotspot automatically.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Connect &amp; configure</h3>
+      <p>Join the hotspot on any phone or laptop and fill in your details and home WiFi password.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Go live</h3>
+      <p>The device connects and registers. Your account is activated within seconds.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>Get alerted</h3>
+      <p>Motion or smoke detected? You get an email immediately with a timestamp and device ID.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="background: #0a1e30; max-width:100%; padding: 72px 24px;">
+  <div style="max-width:1100px; margin:0 auto;">
+    <div class="section-label">Features</div>
+    <h2>Everything you need, nothing you don't</h2>
+    <p class="sub">Tocatech is built for simplicity, reliability, and real-world use.</p>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">🚶</div>
+        <h3>PIR Motion Detection</h3>
+        <p>Passive infrared sensor detects body heat movement across a wide angle, day or night.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔥</div>
+        <h3>Smoke Detection</h3>
+        <p>Dual-sensor alert system catches smoke early and notifies you before it becomes a crisis.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📧</div>
+        <h3>Instant Email Alerts</h3>
+        <p>Alerts go directly to your inbox — no app, no account, no data charges required.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚙️</div>
+        <h3>Alert Scheduling</h3>
+        <p>Set the hours you want to receive alerts and the minimum time between notifications.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔄</div>
+        <h3>Automatic OTA Updates</h3>
+        <p>Firmware updates install silently in the background. Your device always has the latest features.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔒</div>
+        <h3>Remote Control</h3>
+        <p>Restart or factory-reset your device remotely from your admin dashboard at any time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-label">Pricing</div>
+  <h2>Simple monthly plans</h2>
+  <p class="sub">All plans include hardware, setup support, and email alerting. Cancel anytime.</p>
+  <div class="pricing">
+
+    <div class="plan">
+      <div class="plan-name">Basic</div>
+      <div class="plan-price">R149 <span>/ month</span></div>
+      <div class="plan-desc">For a single property or small space.</div>
+      <ul>
+        <li>1 Tocatech device</li>
+        <li>Motion detection</li>
+        <li>Email alerts</li>
+        <li>Alert scheduling</li>
+        <li>Email support</li>
+      </ul>
+      <a href="#contact" class="btn btn-outline">Get Started</a>
+    </div>
+
+    <div class="plan featured">
+      <div class="plan-badge">MOST POPULAR</div>
+      <div class="plan-name">Standard</div>
+      <div class="plan-price">R249 <span>/ month</span></div>
+      <div class="plan-desc">Motion + smoke for full home coverage.</div>
+      <ul>
+        <li>1 Tocatech device</li>
+        <li>Motion + smoke detection</li>
+        <li>Email alerts</li>
+        <li>Alert scheduling + cooldown</li>
+        <li>OTA firmware updates</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="#contact" class="btn">Get Started</a>
+    </div>
+
+    <div class="plan">
+      <div class="plan-name">Business</div>
+      <div class="plan-price">R599 <span>/ month</span></div>
+      <div class="plan-desc">Multiple devices for commercial premises.</div>
+      <ul>
+        <li>Up to 5 Tocatech devices</li>
+        <li>Motion + smoke detection</li>
+        <li>Email alerts for all devices</li>
+        <li>Centralised dashboard</li>
+        <li>Remote management</li>
+        <li>Dedicated support line</li>
+      </ul>
+      <a href="#contact" class="btn btn-outline">Contact Us</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background: #0a1e30; max-width:100%; padding: 72px 24px;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div class="section-label">FAQ</div>
+    <h2>Common questions</h2>
+    <p class="sub" style="margin-bottom: 32px;">Everything you need to know before getting started.</p>
+    <div class="faqs">
+      <details>
+        <summary>Do I need a smartphone app?</summary>
+        <p>No. Alerts are delivered directly to your email address. Setup is done through a web page that opens automatically on any device.</p>
+      </details>
+      <details>
+        <summary>What happens if my WiFi goes down?</summary>
+        <p>The device will attempt to reconnect automatically. Alerts will resume as soon as the connection is restored. You will not receive alerts while offline.</p>
+      </details>
+      <details>
+        <summary>Can I control when I receive alerts?</summary>
+        <p>Yes. Once activated you will receive a link in every alert email to manage your settings. You can set active hours (e.g. only alert between 22:00 and 06:00) and a minimum cooldown between emails.</p>
+      </details>
+      <details>
+        <summary>How does the device get updates?</summary>
+        <p>Firmware updates are pushed automatically over WiFi (OTA). Your device checks for updates every 6 hours and installs them silently without any action required from you.</p>
+      </details>
+      <details>
+        <summary>Is there a contract?</summary>
+        <p>No long-term contract. Plans are month-to-month and can be cancelled at any time. The device remains yours.</p>
+      </details>
+      <details>
+        <summary>What is the range of the PIR sensor?</summary>
+        <p>The sensor has a detection range of approximately 7 metres and a 120° field of view. Optimal placement is in a corner at head height.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-band" id="contact">
+  <h2>Ready to protect your space?</h2>
+  <p>Get in touch and we will have your device configured and shipped within 48 hours.</p>
+  <a href="mailto:hello@tocatech.co.za" class="btn">Contact Us</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div style="margin-bottom:12px;">
+    <a href="index.html">Home</a>
+    <a href="manual.html">Manual</a>
+    <a href="mailto:hello@tocatech.co.za">Contact</a>
+  </div>
+  &copy; 2026 Tocatech. All rights reserved.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tocatech – Device Manual</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:   #4fc3f7;
+      --dark:   #0d1b2a;
+      --card:   #1a2a3a;
+      --border: #1e3a5f;
+      --muted:  #607d8b;
+      --text:   #e0e0e0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      line-height: 1.7;
+      display: flex;
+    }
+
+    a { color: var(--blue); }
+
+    /* ── SIDEBAR ── */
+    aside {
+      width: 240px;
+      min-height: 100vh;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      padding: 28px 20px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .sidebar-logo {
+      color: var(--blue);
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .sidebar-sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 28px;
+    }
+    .sidebar-section {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 20px 0 6px;
+    }
+    aside ul { list-style: none; }
+    aside ul li a {
+      display: block;
+      padding: 5px 8px;
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 13px;
+      text-decoration: none;
+    }
+    aside ul li a:hover { background: var(--border); color: var(--blue); }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      padding: 48px 52px;
+      max-width: 860px;
+    }
+
+    .page-title {
+      color: #fff;
+      font-size: 32px;
+      margin-bottom: 6px;
+    }
+    .page-sub {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    section { margin-bottom: 56px; }
+
+    h2 {
+      color: #fff;
+      font-size: 21px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      scroll-margin-top: 24px;
+    }
+    h3 {
+      color: var(--blue);
+      font-size: 15px;
+      margin: 22px 0 8px;
+    }
+    p { color: var(--text); font-size: 15px; margin-bottom: 14px; }
+
+    /* ── CALLOUTS ── */
+    .note, .warning, .tip {
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    .note    { background: #0a2540; border-left: 4px solid var(--blue); color: #90caf9; }
+    .warning { background: #3e1a00; border-left: 4px solid #f57c00; color: #ffb74d; }
+    .tip     { background: #1b3a2a; border-left: 4px solid #43a047; color: #81c784; }
+    .note b, .warning b, .tip b { font-weight: bold; }
+
+    /* ── TABLE ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin: 16px 0;
+    }
+    thead tr { background: var(--border); }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      color: var(--blue);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    /* LED dot */
+    .led {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .led-slow  { background: #4fc3f7; animation: blink-slow 2s step-start infinite; }
+    .led-solid { background: #4fc3f7; }
+    .led-fast  { background: #4fc3f7; animation: blink-fast 0.16s step-start infinite; }
+    .led-ota   { background: #f57c00; animation: blink-fast 0.16s step-start infinite; }
+    @keyframes blink-slow { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+    @keyframes blink-fast { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+
+    /* ── STEPS ── */
+    .steps ol { padding-left: 0; list-style: none; counter-reset: steps; }
+    .steps ol li {
+      counter-increment: steps;
+      display: flex;
+      gap: 16px;
+      margin-bottom: 18px;
+      align-items: flex-start;
+    }
+    .steps ol li::before {
+      content: counter(steps);
+      background: var(--blue);
+      color: var(--dark);
+      font-weight: bold;
+      font-size: 13px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .steps ol li div strong { color: #fff; display: block; margin-bottom: 2px; font-size: 15px; }
+    .steps ol li div span  { color: var(--muted); font-size: 14px; }
+
+    /* ── PIN TABLE ── */
+    .pin { font-family: monospace; background: var(--border); padding: 2px 7px; border-radius: 4px; font-size: 13px; }
+
+    /* ── BACK LINK ── */
+    .back { font-size: 13px; color: var(--muted); display: inline-block; margin-bottom: 28px; }
+    .back:hover { color: var(--blue); }
+
+    @media (max-width: 700px) {
+      body { display: block; }
+      aside { display: none; }
+      main  { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="sidebar-logo">Tocatech</div>
+  <div class="sidebar-sub">Device Manual v1.0</div>
+
+  <div class="sidebar-section">Getting Started</div>
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#in-the-box">In the Box</a></li>
+    <li><a href="#setup">First-Time Setup</a></li>
+  </ul>
+
+  <div class="sidebar-section">Operation</div>
+  <ul>
+    <li><a href="#led">LED Indicator Guide</a></li>
+    <li><a href="#sensors">Sensors</a></li>
+    <li><a href="#alerts">Email Alerts</a></li>
+    <li><a href="#alert-settings">Managing Alert Settings</a></li>
+  </ul>
+
+  <div class="sidebar-section">Advanced</div>
+  <ul>
+    <li><a href="#reset">Factory Reset</a></li>
+    <li><a href="#ota">Firmware Updates</a></li>
+    <li><a href="#pinout">Pinout Reference</a></li>
+  </ul>
+
+  <div class="sidebar-section">Support</div>
+  <ul>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+
+  <div style="margin-top: 32px;">
+    <a href="index.html" style="font-size:13px; color: var(--muted);">← Back to website</a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main>
+  <a href="index.html" class="back">← tocatech.co.za</a>
+  <h1 class="page-title">Device Manual</h1>
+  <p class="page-sub">Tocatech Security Device &nbsp;·&nbsp; Firmware v1.0.0 &nbsp;·&nbsp; Last updated March 2026</p>
+
+  <!-- OVERVIEW -->
+  <section id="overview">
+    <h2>Overview</h2>
+    <p>The Tocatech device is a compact, WiFi-connected security unit that monitors your premises for motion and smoke. When either sensor is triggered, the device sends an immediate email alert to your registered address. No mobile app or hub is required — everything runs over your existing home or office WiFi.</p>
+    <p>The device is managed entirely through a web-based setup portal and your email inbox. Alert preferences (active hours, notification frequency) can be updated at any time using the link included in every alert email.</p>
+  </section>
+
+  <!-- IN THE BOX -->
+  <section id="in-the-box">
+    <h2>In the Box</h2>
+    <table>
+      <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
+      <tbody>
+        <tr><td>Tocatech security device</td><td>1</td></tr>
+        <tr><td>USB power cable (USB-C)</td><td>1</td></tr>
+        <tr><td>USB wall adapter (5V 1A)</td><td>1</td></tr>
+        <tr><td>Quick-start card</td><td>1</td></tr>
+      </tbody>
+    </table>
+    <div class="note"><b>Power requirement:</b> 5V DC via USB-C. Do not use a charger rated below 1A.</div>
+  </section>
+
+  <!-- SETUP -->
+  <section id="setup">
+    <h2>First-Time Setup</h2>
+    <p>Initial setup takes approximately 3–5 minutes and is done entirely through a web page on your phone or laptop. You will need your home WiFi password.</p>
+
+    <div class="steps">
+      <ol>
+        <li>
+          <div>
+            <strong>Power on the device</strong>
+            <span>Connect the USB-C cable to the device and plug the adapter into a wall socket. The LED will begin blinking slowly — this means the setup portal is open.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Connect to the device hotspot</strong>
+            <span>On your phone or laptop, open WiFi settings and connect to the network named <b>Tocatech-Setup-Portal</b>. A setup page will open automatically. If it does not, open a browser and go to <b>192.168.4.1</b>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Tap "Setup" and fill in your details</strong>
+            <span>Enter your name, ID number, email address, phone number, and home address. This information is used to register your device and send alerts to the correct address.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Tap "Configure WiFi" and enter your password</strong>
+            <span>Select your home WiFi network from the list and enter the password. Tap Save.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Wait for the LED to go solid</strong>
+            <span>The device will connect to WiFi and register itself. The LED will stop blinking and stay on solid. Setup is complete.</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="note"><b>Note:</b> Your account will initially be set to <b>PENDING</b>. You will receive a confirmation email once your subscription is activated, usually within 24 hours.</div>
+  </section>
+
+  <!-- LED INDICATOR -->
+  <section id="led">
+    <h2>LED Indicator Guide</h2>
+    <p>The blue LED on the side of the device communicates the current device status at a glance.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>LED Behaviour</th>
+          <th>What it means</th>
+          <th>Action required</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="led led-slow"></span>Slow blink &nbsp;<small>(1× per second)</small></td>
+          <td>Setup portal is open — device is not connected to WiFi</td>
+          <td>Connect to <b>Tocatech-Setup-Portal</b> and complete setup</td>
+        </tr>
+        <tr>
+          <td><span class="led led-solid"></span>Solid ON</td>
+          <td>Connected to WiFi and service is running normally</td>
+          <td>None — device is operating correctly</td>
+        </tr>
+        <tr>
+          <td><span class="led led-fast"></span>5 rapid blinks → solid</td>
+          <td>Motion detected by PIR sensor</td>
+          <td>None — alert email has been sent</td>
+        </tr>
+        <tr>
+          <td><span class="led led-fast"></span>10 rapid blinks → solid</td>
+          <td>Smoke detected by smoke sensor</td>
+          <td>Check premises immediately — alert email has been sent</td>
+        </tr>
+        <tr>
+          <td><span class="led led-ota"></span>Continuous rapid blink</td>
+          <td>Firmware update downloading and installing</td>
+          <td>Do not unplug — device will restart automatically when complete</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="warning"><b>Important:</b> Never unplug the device while a firmware update is in progress (continuous rapid blink). Interrupting an update may require the device to be reprogrammed.</div>
+  </section>
+
+  <!-- SENSORS -->
+  <section id="sensors">
+    <h2>Sensors</h2>
+
+    <h3>PIR Motion Sensor</h3>
+    <p>The passive infrared (PIR) sensor detects movement by measuring changes in body heat. It has a detection range of approximately <b>7 metres</b> and a <b>120° field of view</b>.</p>
+    <p><b>Placement tip:</b> Mount in a corner at approximately head height (1.8–2.2 m). Avoid pointing directly at windows or heat sources such as air conditioners.</p>
+
+    <h3>Smoke Sensor</h3>
+    <p>The smoke sensor detects airborne particles associated with combustion. It is designed for early warning and will trigger before smoke is visible to the eye.</p>
+    <div class="warning"><b>This device is not a certified fire alarm.</b> It is a supplementary alert system. Always install certified smoke alarms as your primary fire detection solution.</div>
+
+    <h3>Cooldown between triggers</h3>
+    <p>After a sensor triggers, the device waits <b>10 seconds</b> before it will trigger again. This prevents rapid-fire alerts from a single event. You can also set a longer email cooldown in your <a href="#alert-settings">alert settings</a>.</p>
+  </section>
+
+  <!-- ALERTS -->
+  <section id="alerts">
+    <h2>Email Alerts</h2>
+    <p>When a sensor triggers and your account is <b>ACTIVE</b>, you will receive an email within a few seconds containing:</p>
+    <ul style="margin-left: 20px; color: var(--text); font-size: 15px; line-height: 2;">
+      <li>The type of alert (Motion or Smoke)</li>
+      <li>The date and time of detection</li>
+      <li>Your device ID</li>
+      <li>A button to manage your alert settings</li>
+    </ul>
+    <p style="margin-top: 14px;">Alerts will <b>not</b> be sent if:</p>
+    <ul style="margin-left: 20px; color: var(--muted); font-size: 14px; line-height: 2;">
+      <li>Your account status is PENDING (not yet activated)</li>
+      <li>The alert falls outside your configured active hours</li>
+      <li>The cooldown period between emails has not elapsed</li>
+      <li>The device has no internet connection</li>
+    </ul>
+  </section>
+
+  <!-- ALERT SETTINGS -->
+  <section id="alert-settings">
+    <h2>Managing Alert Settings</h2>
+    <p>You can control when you receive alerts and how frequently using the settings page. Every alert email includes a button labelled <b>"Manage My Alert Settings"</b> — click it to open your personal settings page.</p>
+
+    <h3>Alert Start / Stop Time</h3>
+    <p>Set the hours (in 24-hour format) during which you want to receive emails. For example, entering <b>22</b> as start and <b>6</b> as stop means alerts are only sent between 10 PM and 6 AM. Leave both blank to receive alerts at any time.</p>
+
+    <h3>Cooldown (minimum time between emails)</h3>
+    <p>Enter the minimum number of minutes that must pass before another email is sent for the same device. For example, entering <b>30</b> means you will not receive more than one email every 30 minutes. Leave blank for no limit.</p>
+
+    <div class="tip"><b>Tip:</b> Triggers during a cooldown period are still logged in your activity history — you just won't receive an email for them.</div>
+  </section>
+
+  <!-- RESET -->
+  <section id="reset">
+    <h2>Factory Reset</h2>
+    <p>A factory reset clears all saved WiFi credentials and forces the device back into setup mode. Your registration data in the system is not deleted.</p>
+
+    <h3>Hardware reset (physical button)</h3>
+    <div class="steps">
+      <ol>
+        <li><div><strong>Hold the reset button</strong><span>Press and hold the BOOT button (GPIO0) on the device for at least 5 seconds.</span></div></li>
+        <li><div><strong>Release</strong><span>The device will wipe its WiFi settings and restart. The LED will begin blinking slowly, indicating the setup portal is open.</span></div></li>
+        <li><div><strong>Reconfigure</strong><span>Follow the <a href="#setup">First-Time Setup</a> steps to reconnect the device.</span></div></li>
+      </ol>
+    </div>
+
+    <h3>Remote reset (admin only)</h3>
+    <p>The device can also be reset remotely by placing the command <b>WIPE</b> or <b>RESTART</b> in column S of the Clients sheet. The device will action the command on its next sensor ping.</p>
+  </section>
+
+  <!-- OTA -->
+  <section id="ota">
+    <h2>Firmware Updates (OTA)</h2>
+    <p>Your Tocatech device checks for firmware updates automatically every <b>6 hours</b>. When an update is available, it downloads and installs the new firmware silently over WiFi and reboots.</p>
+    <p>During an update the LED will blink rapidly and continuously. The process takes approximately 30–60 seconds. <b>Do not unplug the device during this time.</b></p>
+    <p>After rebooting, the LED will return to solid and the device will resume normal operation with the new firmware.</p>
+    <div class="tip"><b>No action is required from you.</b> Updates are fully automatic.</div>
+  </section>
+
+  <!-- PINOUT -->
+  <section id="pinout">
+    <h2>Pinout Reference</h2>
+    <p>For developers and hardware integrators.</p>
+    <table>
+      <thead><tr><th>Pin</th><th>GPIO</th><th>Function</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pin">PIR_PIN</span></td><td>GPIO 14</td><td>PIR motion sensor signal (INPUT_PULLDOWN)</td></tr>
+        <tr><td><span class="pin">SMOKE_PIN</span></td><td>GPIO 27</td><td>Smoke sensor digital output (INPUT_PULLDOWN)</td></tr>
+        <tr><td><span class="pin">STATUS_LED</span></td><td>GPIO 2</td><td>Status LED (built-in or external)</td></tr>
+        <tr><td><span class="pin">RESET_BUTTON</span></td><td>GPIO 0</td><td>Factory reset button (INPUT_PULLUP, active LOW, hold 5s)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- TROUBLESHOOTING -->
+  <section id="troubleshooting">
+    <h2>Troubleshooting</h2>
+
+    <h3>LED is blinking slowly and won't stop</h3>
+    <p>The device cannot connect to WiFi. Check that your WiFi password was entered correctly. Hold the reset button for 5 seconds to re-enter setup and reconfigure.</p>
+
+    <h3>I'm not receiving alert emails</h3>
+    <ul style="margin-left: 20px; color: var(--text); font-size: 14px; line-height: 2.2;">
+      <li>Check your <b>spam / junk</b> folder</li>
+      <li>Confirm your account status is <b>ACTIVE</b> (not PENDING)</li>
+      <li>Check your <a href="#alert-settings">alert settings</a> — active hours or cooldown may be blocking emails</li>
+      <li>Confirm the device LED is solid (connected to WiFi)</li>
+    </ul>
+
+    <h3>The setup portal page doesn't open automatically</h3>
+    <p>Connect to <b>Tocatech-Setup-Portal</b> in your WiFi settings, then open a browser and navigate to <b>192.168.4.1</b>.</p>
+
+    <h3>The device keeps triggering false motion alerts</h3>
+    <p>Reposition the device away from heat sources, air vents, or windows where sunlight or passing vehicles may trigger the sensor. You can also increase the email cooldown in your settings to reduce notification frequency.</p>
+
+    <h3>The device restarted unexpectedly</h3>
+    <p>This is likely a firmware update completing. The LED will come back solid within 60 seconds. If it continues to restart, contact support.</p>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <h2>Contact &amp; Support</h2>
+    <p>If you need help that is not covered in this manual, please reach out:</p>
+    <table>
+      <tbody>
+        <tr><td style="width:140px; color: var(--muted);">Email</td><td><a href="mailto:hello@tocatech.co.za">hello@tocatech.co.za</a></td></tr>
+        <tr><td style="color: var(--muted);">Website</td><td><a href="index.html">tocatech.co.za</a></td></tr>
+        <tr><td style="color: var(--muted);">Response time</td><td>Within 24 hours on business days</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+</body>
+</html>
