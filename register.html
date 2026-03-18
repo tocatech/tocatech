@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tocatech – Guest WiFi Registration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:       #0B74D8;
+      --blue-light: #EFF6FF;
+      --blue-dark:  #0055A5;
+      --text:       #111827;
+      --muted:      #6B7280;
+      --soft:       #374151;
+      --border:     #E5E7EB;
+      --bg:         #FFFFFF;
+      --bg-alt:     #F8F9FB;
+      --radius:     12px;
+      --shadow:     0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-alt);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      text-align: center;
+    }
+    .header-logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--blue);
+      letter-spacing: -0.5px;
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 20px 48px;
+    }
+
+    .welcome {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .welcome h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .welcome p {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 340px;
+      margin: 0 auto;
+    }
+
+    /* ── FORM CARD ── */
+    .form-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--soft);
+      margin-bottom: 6px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    .form-group input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(11, 116, 216, 0.12);
+    }
+    .form-group input::placeholder {
+      color: #9CA3AF;
+    }
+
+    .btn-submit {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-submit:hover {
+      background: var(--blue-dark);
+    }
+    .btn-submit:disabled {
+      background: #93c5fd;
+      cursor: not-allowed;
+    }
+
+    /* ── MESSAGES ── */
+    .msg {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+    }
+    .msg-success {
+      background: #DCFCE7;
+      border: 1px solid #86EFAC;
+      color: #166534;
+    }
+    .msg-success .wifi-pass {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 16px;
+      background: #fff;
+      border: 2px solid #16A34A;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #166534;
+      letter-spacing: 2px;
+    }
+    .msg-error {
+      background: #FEE2E2;
+      border: 1px solid #FECACA;
+      color: #991B1B;
+    }
+
+    /* ── PRIVACY ── */
+    .privacy {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 340px;
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+
+    /* ── QR SECTION ── */
+    .qr-section {
+      margin-top: 48px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      padding-top: 36px;
+    }
+    .qr-section h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .qr-section p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .qr-placeholder {
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 16px;
+      background: var(--bg);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .qr-instruction {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .footer a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      body { background: #fff; }
+      .form-card, .msg, .privacy { display: none; }
+      .welcome h1 { font-size: 20px; }
+      .qr-section { border-top: 1px solid #ccc; margin-top: 24px; padding-top: 24px; }
+      .qr-placeholder { border-color: #999; }
+      .footer { border: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">Tocatech</div>
+</div>
+
+<div class="main">
+  <div class="welcome">
+    <h1>Welcome!</h1>
+    <p>Register for free WiFi access</p>
+  </div>
+
+  <div class="form-card">
+    <form id="guestForm">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your name" required autocomplete="name" />
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" placeholder="e.g. 072 123 4567" required autocomplete="tel" />
+      </div>
+      <div class="form-group">
+        <label for="people">Number of Guests</label>
+        <input type="number" id="people" name="people" min="1" max="20" value="1" required />
+      </div>
+      <button type="submit" class="btn-submit" id="submitBtn">Register</button>
+    </form>
+
+    <div class="msg msg-success" id="msgSuccess">
+      <strong>You're registered!</strong><br>
+      The WiFi password is:
+      <div class="wifi-pass">REPLACE-WITH-PASSWORD</div>
+    </div>
+    <div class="msg msg-error" id="msgError">
+      Something went wrong. Please try again or ask your host for help.
+    </div>
+  </div>
+
+  <div class="privacy">Your information is only used for guest verification and will not be shared.</div>
+
+  <div class="qr-section">
+    <h2>QR Code for Guests</h2>
+    <p>Print this page and place it in your rental — guests scan the QR code to register.</p>
+    <div class="qr-placeholder">Your QR code here</div>
+    <p class="qr-instruction">Generate a QR code that points to this page's URL and place the image here.</p>
+  </div>
+</div>
+
+<div class="footer">Powered by <a href="index.html">Tocatech</a></div>
+
+<script>
+  // IMPORTANT: Replace this URL with your actual Google Apps Script deployment URL
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR-SCRIPT-ID-HERE/exec';
+
+  document.getElementById('guestForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('submitBtn');
+    const msgSuccess = document.getElementById('msgSuccess');
+    const msgError = document.getElementById('msgError');
+
+    // Hide any previous messages
+    msgSuccess.style.display = 'none';
+    msgError.style.display = 'none';
+
+    const name = document.getElementById('name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const people = document.getElementById('people').value;
+
+    if (!name || !phone || !people) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Registering...';
+
+    const url = APPS_SCRIPT_URL
+      + '?action=guestregister'
+      + '&name=' + encodeURIComponent(name)
+      + '&phone=' + encodeURIComponent(phone)
+      + '&people=' + encodeURIComponent(people);
+
+    fetch(url, { mode: 'no-cors' })
+      .then(function() {
+        msgSuccess.style.display = 'block';
+        document.getElementById('guestForm').style.display = 'none';
+      })
+      .catch(function() {
+        msgError.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Register';
+      });
+  });
+</script>
+
+</body>
+</html>

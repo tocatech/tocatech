@@ -213,6 +213,14 @@
     <li><a href="#sensors">Sensors</a></li>
     <li><a href="#alerts">Email Alerts</a></li>
     <li><a href="#alert-settings">Managing Alert Settings</a></li>
+    <li><a href="#wifi-report">Nightly WiFi Report</a></li>
+  </ul>
+
+  <div class="sidebar-section">Monitoring</div>
+  <ul>
+    <li><a href="#smoke-detection">Cigarette Smoke Detection</a></li>
+    <li><a href="#air-quality">Air Quality Monitoring</a></li>
+    <li><a href="#esp32-cam">Supply Cabinet Camera</a></li>
   </ul>
 
   <div class="sidebar-section">Advanced</div>
@@ -396,6 +404,162 @@
     <p>Enter the minimum number of minutes that must pass before another email is sent for the same device. For example, entering <b>30</b> means you will not receive more than one email every 30 minutes. Leave blank for no limit.</p>
 
     <div class="tip"><b>Tip:</b> Triggers during a cooldown period are still logged in your activity history — you just won't receive an email for them.</div>
+  </section>
+
+  <!-- NIGHTLY WIFI REPORT -->
+  <section id="wifi-report">
+    <h2>📱 Nightly WiFi Device Report</h2>
+    <p>Your Tocatech device scans your WiFi network every hour and counts how many devices are connected. Between <b>10pm and 6am</b>, if the count exceeds your configured minimum, it sends you a report email. This is useful for Airbnb hosts who want to know how many phones are on the network overnight.</p>
+
+    <h3>How it works</h3>
+    <p>The device sends one notification per night at most. The system compares tonight's count to the previous night's count to decide whether to send a standard <b>info email</b> or a more urgent <b>alert email</b>.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Scan runs, count is at or below your threshold</td>
+          <td>Nothing sent — count is stored for next night's comparison</td>
+        </tr>
+        <tr>
+          <td>Scan runs outside 10pm–6am</td>
+          <td>Ignored — stored but no email sent</td>
+        </tr>
+        <tr>
+          <td>Night scan, count exceeds threshold — first time (no previous night to compare)</td>
+          <td><b>Info email</b> — "3 devices detected tonight"</td>
+        </tr>
+        <tr>
+          <td>Night scan, count exceeds threshold AND is higher than last night's count</td>
+          <td><b>Alert email</b> — "4 devices tonight, was 3 last night"</td>
+        </tr>
+        <tr>
+          <td>A second scan fires the same night</td>
+          <td>Ignored — only one notification is sent per night</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Example — Airbnb use case</h3>
+    <p>You have 3 guests booked. You set your threshold to <b>2</b>. On the first night, 3 phones are detected — you receive an <b>info email</b>. On the second night, 5 phones are detected — you receive an <b>alert email</b> because the count increased since last night.</p>
+
+    <div class="tip"><b>Tip:</b> Set your threshold to the number of devices that are <em>always</em> on your WiFi (e.g. your smart TV, router, etc.) so you only get notified when guests' phones appear.</div>
+    <div class="note"><b>Note:</b> The report shows each device's local IP address and MAC address. MAC addresses can help identify device manufacturers but cannot identify the person holding the phone.</div>
+
+    <h3>Configuring the threshold</h3>
+    <p>Open your settings page using the link in any alert email. Under <b>Nightly WiFi Device Report</b>, set the number of devices above which you want to receive a report. The default is <b>2</b>. Set it to <b>0</b> to receive a report every night regardless of how many devices are found.</p>
+  </section>
+
+  <!-- CIGARETTE SMOKE DETECTION -->
+  <section id="smoke-detection">
+    <h2>Cigarette Smoke Detection (PMS5003)</h2>
+    <p>The Tocatech device includes a <b>PMS5003 laser particle sensor</b> that measures fine particulate matter (PM2.5) in the air. Unlike a simple gas sensor, the PMS5003 uses a laser to count individual airborne particles, giving highly accurate readings of smoke concentration — including cigarette smoke.</p>
+
+    <h3>How it works</h3>
+    <p>Air is drawn into the sensor by a small internal fan. A laser beam illuminates the particles, and a photodetector counts them and estimates their size. The sensor reports a PM2.5 concentration value in micrograms per cubic metre (&#181;g/m&#179;).</p>
+
+    <h3>What PM2.5 means for Airbnb hosts</h3>
+    <p>PM2.5 refers to particles smaller than 2.5 micrometres — fine enough to penetrate deep into the lungs. Cigarette smoke produces a sharp spike in PM2.5, making it an effective indicator of indoor smoking even when windows are open.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>PM2.5 Range (&#181;g/m&#179;)</th>
+          <th>Air Quality</th>
+          <th>Typical Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>0 – 12</td><td>Good</td><td>Normal indoor air</td></tr>
+        <tr><td>12 – 35</td><td>Moderate</td><td>Cooking, dust, open windows near traffic</td></tr>
+        <tr><td>35+</td><td>Unhealthy</td><td>Heavy cooking, incense, nearby fire</td></tr>
+        <tr><td>150 – 500+</td><td>Hazardous</td><td>Cigarette / vape smoke indoors</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Alert threshold</h3>
+    <p>The device triggers a <b>"Cigarette Smoke Detected"</b> alert when PM2.5 exceeds <b>150 &#181;g/m&#179;</b> and remains above that level for at least <b>2 minutes</b>. The sustained reading requirement prevents false alerts from brief spikes such as burnt toast or a dusty blanket being shaken out.</p>
+
+    <h3>Cooldown</h3>
+    <p>After a cigarette smoke alert is sent, the device enters a <b>30-minute cooldown</b> before it will send another smoke-related alert. This prevents repeated notifications from the same smoking session.</p>
+
+    <h3>Data reporting</h3>
+    <p>The current PM2.5 reading is included in the <b>10-minute environment data reports</b> sent to your Google Sheet, allowing you to track air quality trends over time. The reading is also shown live on the <b>bottom row of the OLED display</b> on the device.</p>
+
+    <h3>Warm-up period</h3>
+    <p>After power-on, the PMS5003 requires approximately <b>30 seconds</b> to stabilise its internal fan and laser. Readings during this warm-up period may be inaccurate and are not used for alerting.</p>
+
+    <div class="tip"><b>Tip:</b> Place the device in the main living area for best coverage — cigarette smoke dissipates quickly in well-ventilated spaces.</div>
+  </section>
+
+  <!-- AIR QUALITY MONITORING -->
+  <section id="air-quality">
+    <h2>Air Quality Monitoring</h2>
+    <p>The Tocatech device continuously monitors indoor air quality by combining PM2.5 particulate data from the PMS5003 sensor with temperature and humidity readings from the onboard DHT sensor. Together, these give you a complete picture of the indoor environment at your property.</p>
+
+    <h3>Environment data reports</h3>
+    <p>Every <b>10 minutes</b>, the device sends an environment data snapshot (<b>envdata</b>) to your Google Sheet. Each report includes the current temperature, humidity and PM2.5 concentration. Over time, this builds a detailed log that lets you spot trends — for example, a humidity spike that could indicate a water leak, or a PM2.5 increase suggesting someone is smoking indoors.</p>
+
+    <h3>Normal ranges</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Measurement</th>
+          <th>Normal Range</th>
+          <th>Action Needed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Temperature</td><td>18 – 26 °C</td><td>Check HVAC if consistently outside range</td></tr>
+        <tr><td>Humidity</td><td>30 – 60 %</td><td>Below 30% is very dry; above 60% risks mould growth</td></tr>
+        <tr><td>PM2.5</td><td>0 – 12 &#181;g/m&#179;</td><td>Above 35 is unhealthy; above 150 triggers cigarette smoke alert</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Viewing trends</h3>
+    <p>All environment data is logged in your Google Sheet. You can view the history in the sheet directly, or create simple charts in Google Sheets to visualise temperature, humidity and air quality trends across days or weeks.</p>
+
+    <div class="note"><b>Note:</b> Environment data reports are sent regardless of your alert schedule — they are informational and do not generate email notifications.</div>
+  </section>
+
+  <!-- ESP32-CAM SUPPLY CABINET MONITOR -->
+  <section id="esp32-cam">
+    <h2>ESP32-CAM Supply Cabinet Monitor (Optional Add-on)</h2>
+    <p>The Supply Cabinet Monitor is a <b>separate standalone device</b> that can be added to your Tocatech setup. It is not included with the main Tocatech security device and must be purchased and configured independently.</p>
+
+    <h3>What it does</h3>
+    <p>This add-on uses an <b>ESP32-CAM AI Thinker</b> module with an <b>OV2640 camera</b> and a <b>microSD card slot</b>. A PIR motion sensor on <span class="pin">GPIO13</span> detects movement near your supply cabinet, cupboard or storage area. When triggered, the camera records a <b>30-second video clip</b> and saves it as an MJPEG AVI file to the microSD card.</p>
+
+    <h3>Live streaming</h3>
+    <p>The ESP32-CAM can also stream live video over WiFi. Once connected to your network, you can view the camera feed from any phone or laptop browser on the same network by navigating to the device's local IP address.</p>
+
+    <h3>Recommended firmware</h3>
+    <p>We recommend the open-source <b>ESP32-CAM_MJPEG2SD</b> firmware, which provides motion-triggered recording, SD card management and a built-in web interface for live streaming and playback.</p>
+
+    <h3>Shopping list</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Estimated Price (ZAR)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>ESP32-CAM AI Thinker module</td><td>~R100</td></tr>
+        <tr><td>MicroSD card (8–32 GB)</td><td>~R60</td></tr>
+        <tr><td>FTDI USB-to-serial programmer</td><td>~R40</td></tr>
+        <tr><td>PIR motion sensor (HC-SR501)</td><td>~R15</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warning"><b>Important:</b> The ESP32-CAM does not have a USB port. An FTDI USB-to-serial adapter is required for first-time firmware flashing. After the initial flash, subsequent updates can be done over WiFi (OTA) if supported by the firmware.</div>
+
+    <div class="tip"><b>Tip:</b> Position the camera inside a supply cupboard or linen closet to monitor whether guests are accessing cleaning products, linen reserves or other items that should remain untouched during their stay.</div>
   </section>
 
   <!-- RESET -->

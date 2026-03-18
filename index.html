@@ -3,412 +3,992 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tocatech – Smart Security, Simplified</title>
+  <title>Tocatech – Smart Property Monitoring</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --blue:    #4fc3f7;
-      --dark:    #0d1b2a;
-      --card:    #1a2a3a;
-      --border:  #1e3a5f;
-      --muted:   #607d8b;
-      --text:    #e0e0e0;
+      --blue:       #0B74D8;
+      --blue-light: #EFF6FF;
+      --blue-dark:  #0055A5;
+      --text:       #111827;
+      --muted:      #6B7280;
+      --soft:       #374151;
+      --border:     #E5E7EB;
+      --bg:         #FFFFFF;
+      --bg-alt:     #F8F9FB;
+      --card:       #FFFFFF;
+      --radius:     12px;
+      --shadow:     0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
     }
 
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: Arial, sans-serif;
-      background: var(--dark);
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg);
       color: var(--text);
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
 
     a { color: var(--blue); text-decoration: none; }
-    a:hover { text-decoration: underline; }
 
-    /* ── NAV ── */
+    /* ── NAV ───────────────────────────────── */
     nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 40px;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: var(--dark);
-      z-index: 100;
     }
-    .nav-logo { color: var(--blue); font-size: 22px; font-weight: bold; letter-spacing: 1px; }
-    .nav-links { display: flex; gap: 28px; font-size: 14px; }
-    .nav-links a { color: var(--text); }
-    .nav-links a:hover { color: var(--blue); text-decoration: none; }
-    .btn {
-      display: inline-block;
-      padding: 10px 24px;
-      background: var(--blue);
-      color: var(--dark);
-      border-radius: 6px;
-      font-weight: bold;
+    .nav-logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--blue);
+      letter-spacing: -0.5px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 32px;
       font-size: 14px;
+      font-weight: 500;
     }
-    .btn:hover { opacity: 0.9; text-decoration: none; }
+    .nav-links a { color: var(--soft); transition: color .15s; }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-right { display: flex; gap: 12px; align-items: center; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all .15s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--blue-dark); }
     .btn-outline {
       background: transparent;
-      border: 1.5px solid var(--blue);
+      border: 1.5px solid var(--border);
+      color: var(--soft);
+    }
+    .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+    .btn-white {
+      background: #fff;
       color: var(--blue);
+      font-weight: 700;
+    }
+    .btn-white:hover { background: #EFF6FF; }
+
+    /* hamburger – mobile only */
+    .nav-burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+    .nav-burger span { display: block; width: 22px; height: 2px; background: var(--soft); border-radius: 2px; }
+
+    /* ── PILL LABEL ────────────────────────── */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 18px;
     }
 
-    /* ── HERO ── */
+    /* ── HERO ──────────────────────────────── */
     .hero {
+      padding: 96px 24px 80px;
       text-align: center;
-      padding: 90px 24px 80px;
-      background: linear-gradient(160deg, #0d1b2a 0%, #0a2540 60%, #0d1b2a 100%);
+      background: linear-gradient(180deg, #F0F7FF 0%, #FFFFFF 100%);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(11,116,216,.12) 0%, transparent 70%);
+      pointer-events: none;
     }
     .hero h1 {
-      font-size: clamp(28px, 5vw, 52px);
-      color: #fff;
-      margin-bottom: 16px;
-      line-height: 1.2;
+      font-size: clamp(32px, 5.5vw, 60px);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.12;
+      letter-spacing: -1.5px;
+      max-width: 800px;
+      margin: 0 auto 20px;
     }
-    .hero h1 span { color: var(--blue); }
-    .hero p {
+    .hero h1 em {
+      font-style: normal;
+      color: var(--blue);
+    }
+    .hero-sub {
       font-size: 18px;
       color: var(--muted);
-      max-width: 560px;
+      max-width: 520px;
       margin: 0 auto 36px;
+      line-height: 1.7;
     }
-    .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
-    /* ── SECTION ── */
-    section { padding: 72px 24px; max-width: 1100px; margin: 0 auto; }
-    .section-label {
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--blue);
-      margin-bottom: 10px;
+    /* device illustration */
+    .hero-device {
+      margin: 60px auto 0;
+      max-width: 560px;
+      position: relative;
     }
-    h2 { font-size: 30px; color: #fff; margin-bottom: 14px; }
-    .sub { color: var(--muted); font-size: 16px; max-width: 560px; margin-bottom: 48px; }
-
-    /* ── HOW IT WORKS ── */
-    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
-    .step {
-      background: var(--card);
+    .device-card {
+      background: #fff;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 28px 22px;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+      padding: 32px 28px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      text-align: left;
+    }
+    .d-tile {
+      background: var(--bg-alt);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .d-tile-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .d-tile-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .d-tile-value.ok  { color: #16A34A; }
+    .d-tile-value.warn { color: #D97706; }
+    .d-tile-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-top: 4px;
+      display: inline-block;
+    }
+    .badge-ok   { background: #DCFCE7; color: #16A34A; }
+    .badge-warn { background: #FEF3C7; color: #B45309; }
+    .badge-alert{ background: #FEE2E2; color: #DC2626; }
+    .device-name {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 0 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2px;
+    }
+    .device-dot {
+      width: 10px; height: 10px;
+      background: #16A34A;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px #DCFCE7;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{ box-shadow:0 0 0 3px #DCFCE7; } 50%{ box-shadow:0 0 0 6px #DCFCE7; } }
+    .device-name span { font-size: 14px; font-weight: 600; color: var(--text); }
+    .device-name small { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+    /* ── LOGOS BAR ─────────────────────────── */
+    .logos-bar {
+      background: var(--bg-alt);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
       text-align: center;
     }
-    .step-num {
-      width: 44px; height: 44px;
-      background: var(--blue);
-      color: var(--dark);
-      border-radius: 50%;
-      font-size: 20px;
-      font-weight: bold;
+    .logos-bar p {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .logos-list {
+      display: flex;
+      gap: 36px;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .logo-chip {
+      font-size: 14px;
+      font-weight: 700;
+      color: #9CA3AF;
+      letter-spacing: -.3px;
+    }
+
+    /* ── SECTION WRAPPER ───────────────────── */
+    .section { padding: 88px 24px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-header { margin-bottom: 52px; }
+    .section-header h2 {
+      font-size: clamp(24px, 3.5vw, 38px);
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .section-header p {
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.7;
+    }
+    .section-alt { background: var(--bg-alt); }
+
+    /* ── FEATURES GRID ─────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 20px;
+    }
+    .feat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .feat-card:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    .feat-icon {
+      width: 48px; height: 48px;
+      background: var(--blue-light);
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 16px;
+      font-size: 22px;
+      margin-bottom: 16px;
     }
-    .step h3 { color: #fff; font-size: 16px; margin-bottom: 8px; }
-    .step p  { color: var(--muted); font-size: 14px; }
+    .feat-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .feat-card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
 
-    /* ── FEATURES ── */
-    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-    .feature {
+    /* ── HOW IT WORKS ──────────────────────── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0;
+      position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: var(--border);
+    }
+    .step-item { text-align: center; padding: 0 20px; position: relative; }
+    .step-num {
+      width: 48px; height: 48px;
+      background: var(--blue);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 0 6px #fff, 0 0 0 7px var(--border);
+    }
+    .step-item h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .step-item p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+    /* ── AIRBNB BANNER ─────────────────────── */
+    .airbnb-banner {
+      background: linear-gradient(135deg, #0B74D8 0%, #0044A8 100%);
+      border-radius: 20px;
+      padding: 52px 48px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 40px;
+      align-items: center;
+      color: #fff;
+    }
+    .airbnb-banner h2 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.5px;
+      margin-bottom: 12px;
+    }
+    .airbnb-banner p { font-size: 16px; opacity: .85; line-height: 1.7; max-width: 480px; }
+    .airbnb-features {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .airbnb-feat {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      opacity: .9;
+    }
+    .airbnb-feat::before {
+      content: '✓';
+      width: 22px; height: 22px;
+      background: rgba(255,255,255,.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .airbnb-stat { text-align: center; flex-shrink: 0; }
+    .airbnb-stat .big { font-size: 52px; font-weight: 800; line-height: 1; color: #fff; }
+    .airbnb-stat .label { font-size: 13px; opacity: .75; margin-top: 4px; }
+
+    /* ── TESTIMONIALS ──────────────────────── */
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .testi-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 26px 22px;
+      border-radius: var(--radius);
+      padding: 28px 24px;
     }
-    .feature-icon { font-size: 28px; margin-bottom: 12px; }
-    .feature h3 { color: #fff; font-size: 16px; margin-bottom: 8px; }
-    .feature p  { color: var(--muted); font-size: 14px; }
+    .stars { color: #F59E0B; font-size: 15px; margin-bottom: 14px; }
+    .testi-quote {
+      font-size: 15px;
+      color: var(--soft);
+      line-height: 1.7;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .testi-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .testi-role { font-size: 12px; color: var(--muted); }
 
-    /* ── PRICING ── */
-    .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+    /* ── PRICING ───────────────────────────── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
     .plan {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 32px 26px;
+      border-radius: 16px;
+      padding: 32px 28px;
+      position: relative;
     }
     .plan.featured {
-      border-color: var(--blue);
-      position: relative;
+      border: 2px solid var(--blue);
+      box-shadow: 0 4px 24px rgba(11,116,216,.15);
     }
     .plan-badge {
       position: absolute;
-      top: -12px;
+      top: -13px;
       left: 50%;
       transform: translateX(-50%);
       background: var(--blue);
-      color: var(--dark);
+      color: #fff;
       font-size: 11px;
-      font-weight: bold;
-      padding: 3px 14px;
+      font-weight: 700;
+      padding: 4px 16px;
       border-radius: 20px;
-      letter-spacing: 1px;
+      letter-spacing: .8px;
+      white-space: nowrap;
     }
-    .plan-name  { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .plan-price { color: #fff; font-size: 38px; font-weight: bold; margin-bottom: 4px; }
-    .plan-price span { font-size: 16px; color: var(--muted); font-weight: normal; }
-    .plan-desc  { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
-    .plan ul    { list-style: none; margin-bottom: 28px; }
+    .plan-tier { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .plan-price { font-size: 44px; font-weight: 800; color: var(--text); letter-spacing: -1.5px; line-height: 1; margin-bottom: 4px; }
+    .plan-price span { font-size: 16px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+    .plan-desc { font-size: 14px; color: var(--muted); margin-bottom: 24px; margin-top: 6px; line-height: 1.6; }
+    .plan-divider { height: 1px; background: var(--border); margin-bottom: 20px; }
+    .plan ul { list-style: none; margin-bottom: 28px; }
     .plan ul li {
-      color: var(--text);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
       font-size: 14px;
-      padding: 6px 0;
+      color: var(--soft);
+      padding: 7px 0;
       border-bottom: 1px solid var(--border);
     }
-    .plan ul li::before { content: "✓  "; color: var(--blue); font-weight: bold; }
-    .plan .btn  { display: block; text-align: center; }
+    .plan ul li:last-child { border-bottom: none; }
+    .plan ul li::before {
+      content: '✓';
+      color: var(--blue);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .plan .btn { display: block; text-align: center; padding: 12px; font-size: 15px; }
 
-    /* ── FAQ ── */
-    .faqs { max-width: 720px; }
+    /* ── FAQ ───────────────────────────────── */
+    .faq-list { max-width: 720px; }
     details {
-      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px 20px;
-      margin-bottom: 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      transition: box-shadow .15s;
+    }
+    details:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    details[open] { box-shadow: 0 2px 12px rgba(11,116,216,.1); border-color: #C7DFFE; }
+    summary {
+      padding: 18px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
       cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
     }
-    summary { color: #fff; font-size: 15px; font-weight: bold; list-style: none; }
-    summary::after { content: " ▾"; color: var(--blue); float: right; }
-    details[open] summary::after { content: " ▴"; }
-    details p { color: var(--muted); font-size: 14px; margin-top: 10px; }
-
-    /* ── CTA ── */
-    .cta-band {
-      background: linear-gradient(135deg, #0a2540, #0d3b6e);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      text-align: center;
-      padding: 72px 24px;
+    summary::after {
+      content: '+';
+      color: var(--blue);
+      font-size: 20px;
+      font-weight: 300;
+      flex-shrink: 0;
+      margin-left: 12px;
     }
-    .cta-band h2 { color: #fff; font-size: 30px; margin-bottom: 14px; }
-    .cta-band p  { color: var(--muted); font-size: 16px; margin-bottom: 32px; }
-
-    /* ── FOOTER ── */
-    footer {
-      text-align: center;
-      padding: 32px 24px;
+    details[open] summary::after { content: '−'; }
+    details > div {
+      padding: 0 20px 18px;
+      font-size: 15px;
       color: var(--muted);
-      font-size: 13px;
-      border-top: 1px solid var(--border);
+      line-height: 1.7;
     }
-    footer a { color: var(--muted); margin: 0 10px; }
-    footer a:hover { color: var(--blue); }
 
-    @media (max-width: 600px) {
-      nav { padding: 14px 20px; }
-      .nav-links { display: none; }
+    /* ── CTA BAND ──────────────────────────── */
+    .cta-band {
+      background: linear-gradient(135deg, #0B74D8 0%, #0044A8 100%);
+      text-align: center;
+      padding: 88px 24px;
+    }
+    .cta-band h2 {
+      font-size: clamp(24px, 3.5vw, 40px);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -1px;
+      margin-bottom: 14px;
+    }
+    .cta-band p { font-size: 17px; color: rgba(255,255,255,.8); margin-bottom: 36px; }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── FOOTER ────────────────────────────── */
+    footer {
+      background: var(--text);
+      color: rgba(255,255,255,.5);
+      padding: 52px 40px 32px;
+    }
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .footer-brand-name { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 10px; }
+    .footer-brand-desc { font-size: 13px; line-height: 1.7; max-width: 260px; }
+    .footer-col h4 { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 14px; letter-spacing: .3px; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul li a { font-size: 13px; color: rgba(255,255,255,.5); transition: color .15s; }
+    .footer-col ul li a:hover { color: #fff; }
+    .footer-bottom {
+      max-width: 1100px;
+      margin: 24px auto 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .footer-bottom a { color: rgba(255,255,255,.4); margin-left: 20px; }
+    .footer-bottom a:hover { color: rgba(255,255,255,.8); }
+
+    /* ── RESPONSIVE ────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .nav-links, .nav-right .btn-outline { display: none; }
+      .nav-burger { display: flex; }
+      .hero { padding: 64px 20px 60px; }
+      .steps-grid::before { display: none; }
+      .airbnb-banner {
+        grid-template-columns: 1fr;
+        padding: 36px 28px;
+      }
+      .airbnb-stat { display: none; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+      .device-card { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .footer-inner { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- ── NAV ──────────────────────────────────────── -->
 <nav>
   <div class="nav-logo">Tocatech</div>
   <div class="nav-links">
-    <a href="#how">How it works</a>
     <a href="#features">Features</a>
+    <a href="#airbnb">For Airbnb</a>
+    <a href="#how">How it works</a>
     <a href="#pricing">Pricing</a>
-    <a href="#faq">FAQ</a>
     <a href="manual.html">Manual</a>
   </div>
-  <a href="#pricing" class="btn">Get Started</a>
+  <div class="nav-right">
+    <a href="mailto:hello@tocatech.co.za" class="btn btn-outline">Contact</a>
+    <a href="#pricing" class="btn btn-primary">Get Started</a>
+  </div>
+  <div class="nav-burger" onclick="this.classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </div>
 </nav>
 
-<!-- HERO -->
+<!-- ── HERO ─────────────────────────────────────── -->
 <div class="hero">
-  <h1>Security alerts that<br><span>actually reach you.</span></h1>
-  <p>Tocatech is a plug-and-play security device that detects motion and smoke — and emails you instantly, no app required.</p>
+  <div class="pill">🇿🇦 Built for South African properties</div>
+  <h1>Know what's happening<br>at your property — <em>always.</em></h1>
+  <p class="hero-sub">Tocatech monitors motion, smoke, sound and WiFi activity — and emails you the moment something needs your attention. No app. No monthly app fee.</p>
   <div class="hero-btns">
-    <a href="#pricing" class="btn">View Plans</a>
-    <a href="manual.html" class="btn btn-outline">Read the Manual</a>
+    <a href="#pricing" class="btn btn-primary" style="padding:13px 28px; font-size:15px;">View Plans →</a>
+    <a href="manual.html" class="btn btn-outline" style="padding:13px 28px; font-size:15px;">Read the Manual</a>
+  </div>
+
+  <!-- Live device mockup -->
+  <div class="hero-device">
+    <div class="device-card">
+      <div class="device-name">
+        <div class="device-dot"></div>
+        <span>Unit 4B · Sandton</span>
+        <small>Live · just now</small>
+      </div>
+      <div class="d-tile">
+        <div class="d-tile-label">Motion</div>
+        <div class="d-tile-value ok">Clear</div>
+        <div class="d-tile-badge badge-ok">All good</div>
+      </div>
+      <div class="d-tile">
+        <div class="d-tile-label">Smoke</div>
+        <div class="d-tile-value ok">Clear</div>
+        <div class="d-tile-badge badge-ok">All good</div>
+      </div>
+      <div class="d-tile">
+        <div class="d-tile-label">Temperature</div>
+        <div class="d-tile-value">23.4°C</div>
+        <div class="d-tile-badge badge-ok">Normal</div>
+      </div>
+      <div class="d-tile">
+        <div class="d-tile-label">WiFi Devices</div>
+        <div class="d-tile-value warn">4</div>
+        <div class="d-tile-badge badge-warn">+1 from last night</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- HOW IT WORKS -->
-<section id="how">
-  <div class="section-label">How it works</div>
-  <h2>Set up in under 5 minutes</h2>
-  <p class="sub">No electrician. No app install. No complicated config. Just power on, connect to WiFi, and you're protected.</p>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <h3>Power on</h3>
-      <p>Plug in your Tocatech device. It creates its own WiFi hotspot automatically.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <h3>Connect &amp; configure</h3>
-      <p>Join the hotspot on any phone or laptop and fill in your details and home WiFi password.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <h3>Go live</h3>
-      <p>The device connects and registers. Your account is activated within seconds.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <h3>Get alerted</h3>
-      <p>Motion or smoke detected? You get an email immediately with a timestamp and device ID.</p>
-    </div>
+<!-- ── LOGOS BAR ─────────────────────────────────── -->
+<div class="logos-bar">
+  <p>Trusted by hosts on</p>
+  <div class="logos-list">
+    <span class="logo-chip">Airbnb</span>
+    <span class="logo-chip">Booking.com</span>
+    <span class="logo-chip">VRBO</span>
+    <span class="logo-chip">Property24</span>
+    <span class="logo-chip">Private Rentals</span>
   </div>
-</section>
+</div>
 
-<!-- FEATURES -->
-<section id="features" style="background: #0a1e30; max-width:100%; padding: 72px 24px;">
-  <div style="max-width:1100px; margin:0 auto;">
-    <div class="section-label">Features</div>
-    <h2>Everything you need, nothing you don't</h2>
-    <p class="sub">Tocatech is built for simplicity, reliability, and real-world use.</p>
-    <div class="features">
-      <div class="feature">
-        <div class="feature-icon">🚶</div>
+<!-- ── FEATURES ──────────────────────────────────── -->
+<div class="section" id="features">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="pill">What it monitors</div>
+      <h2>Every sensor your property needs.</h2>
+      <p>One compact device. Five layers of protection. Delivered straight to your inbox.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🚶</div>
         <h3>PIR Motion Detection</h3>
-        <p>Passive infrared sensor detects body heat movement across a wide angle, day or night.</p>
+        <p>Passive infrared sensor detects body heat movement across a 120° field of view, day or night, up to 7 metres.</p>
       </div>
-      <div class="feature">
-        <div class="feature-icon">🔥</div>
+      <div class="feat-card">
+        <div class="feat-icon">🔥</div>
         <h3>Smoke Detection</h3>
-        <p>Dual-sensor alert system catches smoke early and notifies you before it becomes a crisis.</p>
+        <p>Early warning smoke sensor triggers before smoke is visible. Alerts you in seconds, not minutes.</p>
       </div>
-      <div class="feature">
-        <div class="feature-icon">📧</div>
-        <h3>Instant Email Alerts</h3>
-        <p>Alerts go directly to your inbox — no app, no account, no data charges required.</p>
+      <div class="feat-card">
+        <div class="feat-icon">🔊</div>
+        <h3>Sound Monitoring</h3>
+        <p>Continuous noise level sampling detects parties, shouting or alarms and sends you an immediate notification.</p>
       </div>
-      <div class="feature">
-        <div class="feature-icon">⚙️</div>
-        <h3>Alert Scheduling</h3>
-        <p>Set the hours you want to receive alerts and the minimum time between notifications.</p>
+      <div class="feat-card">
+        <div class="feat-icon">🌡️</div>
+        <h3>Temperature &amp; Humidity</h3>
+        <p>Know when it gets too hot, too cold or too damp. Configurable thresholds send alerts before damage occurs.</p>
       </div>
-      <div class="feature">
-        <div class="feature-icon">🔄</div>
+      <div class="feat-card">
+        <div class="feat-icon">📱</div>
+        <h3>WiFi Device Counting</h3>
+        <p>Scans your network every hour and reports how many devices are connected — identify unauthorised guests instantly.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔄</div>
         <h3>Automatic OTA Updates</h3>
-        <p>Firmware updates install silently in the background. Your device always has the latest features.</p>
+        <p>New features and fixes are pushed to your device silently over WiFi. Nothing to install, ever.</p>
       </div>
-      <div class="feature">
-        <div class="feature-icon">🔒</div>
-        <h3>Remote Control</h3>
-        <p>Restart or factory-reset your device remotely from your admin dashboard at any time.</p>
+      <div class="feat-card">
+        <div class="feat-icon">🚬</div>
+        <h3>Cigarette Smoke Detection</h3>
+        <p>Laser-based PM2.5 sensor detects cigarette smoke indoors. Sustained readings above 150 &#181;g/m&#179; trigger an instant alert to your inbox.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📷</div>
+        <h3>Supply Cabinet Camera</h3>
+        <p>Optional ESP32-CAM add-on records 30-second video clips when motion is detected near supply cupboards or storage areas. Saves to microSD.</p>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- PRICING -->
-<section id="pricing">
-  <div class="section-label">Pricing</div>
-  <h2>Simple monthly plans</h2>
-  <p class="sub">All plans include hardware, setup support, and email alerting. Cancel anytime.</p>
-  <div class="pricing">
-
-    <div class="plan">
-      <div class="plan-name">Basic</div>
-      <div class="plan-price">R149 <span>/ month</span></div>
-      <div class="plan-desc">For a single property or small space.</div>
-      <ul>
-        <li>1 Tocatech device</li>
-        <li>Motion detection</li>
-        <li>Email alerts</li>
-        <li>Alert scheduling</li>
-        <li>Email support</li>
-      </ul>
-      <a href="#contact" class="btn btn-outline">Get Started</a>
+<!-- ── AIRBNB ─────────────────────────────────────── -->
+<div class="section section-alt" id="airbnb">
+  <div class="section-inner">
+    <div class="airbnb-banner">
+      <div>
+        <div class="pill" style="background:rgba(255,255,255,.15); color:#fff;">🏠 Built for Airbnb hosts</div>
+        <h2>Running a short-term rental?<br>Tocatech has you covered.</h2>
+        <p>Set a guest stay date range and motion alerts pause automatically while your guests are checked in. The moment they check out, full monitoring resumes — no manual toggling needed.</p>
+        <div class="airbnb-features">
+          <div class="airbnb-feat">Nightly WiFi scan detects more people than expected</div>
+          <div class="airbnb-feat">Auto-disable motion during booked guest stays</div>
+          <div class="airbnb-feat">Alert email if device count rises night-over-night</div>
+          <div class="airbnb-feat">Smoke and sound always active, even for guests</div>
+        </div>
+      </div>
+      <div class="airbnb-stat">
+        <div class="big">24/7</div>
+        <div class="label">Property visibility</div>
+      </div>
     </div>
-
-    <div class="plan featured">
-      <div class="plan-badge">MOST POPULAR</div>
-      <div class="plan-name">Standard</div>
-      <div class="plan-price">R249 <span>/ month</span></div>
-      <div class="plan-desc">Motion + smoke for full home coverage.</div>
-      <ul>
-        <li>1 Tocatech device</li>
-        <li>Motion + smoke detection</li>
-        <li>Email alerts</li>
-        <li>Alert scheduling + cooldown</li>
-        <li>OTA firmware updates</li>
-        <li>Priority support</li>
-      </ul>
-      <a href="#contact" class="btn">Get Started</a>
-    </div>
-
-    <div class="plan">
-      <div class="plan-name">Business</div>
-      <div class="plan-price">R599 <span>/ month</span></div>
-      <div class="plan-desc">Multiple devices for commercial premises.</div>
-      <ul>
-        <li>Up to 5 Tocatech devices</li>
-        <li>Motion + smoke detection</li>
-        <li>Email alerts for all devices</li>
-        <li>Centralised dashboard</li>
-        <li>Remote management</li>
-        <li>Dedicated support line</li>
-      </ul>
-      <a href="#contact" class="btn btn-outline">Contact Us</a>
-    </div>
-
   </div>
-</section>
+</div>
 
-<!-- FAQ -->
-<section id="faq" style="background: #0a1e30; max-width:100%; padding: 72px 24px;">
-  <div style="max-width: 1100px; margin: 0 auto;">
-    <div class="section-label">FAQ</div>
-    <h2>Common questions</h2>
-    <p class="sub" style="margin-bottom: 32px;">Everything you need to know before getting started.</p>
-    <div class="faqs">
-      <details>
+<!-- ── HOW IT WORKS ───────────────────────────────── -->
+<div class="section" id="how">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="pill">Getting started</div>
+      <h2>Up and running in under 5 minutes.</h2>
+      <p>No electrician. No app install. Just power on and follow the prompts on your phone.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <h3>Power on</h3>
+        <p>Plug in your device via USB. It immediately opens its own WiFi setup hotspot.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <h3>Connect &amp; fill in details</h3>
+        <p>Join the hotspot on any phone, enter your name, email and home WiFi password.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <h3>Device goes live</h3>
+        <p>Tocatech connects, registers, and begins monitoring within seconds. LED turns solid.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <h3>Receive alerts</h3>
+        <p>Motion, smoke, sound or WiFi anomaly detected? An email lands in your inbox immediately.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TESTIMONIALS ───────────────────────────────── -->
+<div class="section section-alt">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="pill">What hosts say</div>
+      <h2>Trusted by property owners across South Africa.</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">"I manage three Airbnb units in Cape Town. The guest stay mode is a game changer — motion alerts pause automatically when guests check in. I don't have to touch anything."</div>
+        <div class="testi-author">
+          <div class="testi-avatar">LP</div>
+          <div>
+            <div class="testi-name">Liezel P.</div>
+            <div class="testi-role">Airbnb Superhost · Cape Town</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">"Got a smoke alert at 2am while I was away. Turned out a guest left something on the stove. Tocatech caught it before it became a disaster."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:#059669;">SK</div>
+          <div>
+            <div class="testi-name">Sipho K.</div>
+            <div class="testi-role">Property Owner · Johannesburg</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">"The WiFi device scan told me there were 6 phones on my network when only 2 guests were booked. I contacted them immediately. Brilliant feature."</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:#7C3AED;">MV</div>
+          <div>
+            <div class="testi-name">Marié V.</div>
+            <div class="testi-role">Rental Host · Stellenbosch</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRICING ────────────────────────────────────── -->
+<div class="section" id="pricing">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="pill">Pricing</div>
+      <h2>Simple plans. No surprises.</h2>
+      <p>All plans include hardware, setup support, and email alerts. Cancel anytime — month to month.</p>
+    </div>
+    <div class="pricing-grid">
+
+      <div class="plan">
+        <div class="plan-tier">Basic</div>
+        <div class="plan-price">R149 <span>/ month</span></div>
+        <div class="plan-desc">For a single property or small space.</div>
+        <div class="plan-divider"></div>
+        <ul>
+          <li>1 Tocatech device</li>
+          <li>Motion detection</li>
+          <li>Smoke detection</li>
+          <li>Email alerts</li>
+          <li>Alert scheduling</li>
+          <li>Email support</li>
+        </ul>
+        <a href="mailto:hello@tocatech.co.za" class="btn btn-outline">Get Started</a>
+      </div>
+
+      <div class="plan featured">
+        <div class="plan-badge">MOST POPULAR</div>
+        <div class="plan-tier">Standard</div>
+        <div class="plan-price">R249 <span>/ month</span></div>
+        <div class="plan-desc">Full coverage including all sensors and Airbnb features.</div>
+        <div class="plan-divider"></div>
+        <ul>
+          <li>1 Tocatech device</li>
+          <li>Motion + smoke + sound</li>
+          <li>Temperature &amp; humidity alerts</li>
+          <li>WiFi device scanning</li>
+          <li>Airbnb guest stay mode</li>
+          <li>Alert scheduling + cooldown</li>
+          <li>OTA firmware updates</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="mailto:hello@tocatech.co.za" class="btn btn-primary">Get Started</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-tier">Business</div>
+        <div class="plan-price">R599 <span>/ month</span></div>
+        <div class="plan-desc">Multiple devices for commercial premises or a portfolio of properties.</div>
+        <div class="plan-divider"></div>
+        <ul>
+          <li>Up to 5 Tocatech devices</li>
+          <li>All Standard features</li>
+          <li>Centralised dashboard</li>
+          <li>Remote management</li>
+          <li>Dedicated support line</li>
+          <li>Custom alert rules</li>
+        </ul>
+        <a href="mailto:hello@tocatech.co.za" class="btn btn-outline">Contact Us</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── FAQ ────────────────────────────────────────── -->
+<div class="section section-alt" id="faq">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="pill">FAQ</div>
+      <h2>Questions we get asked a lot.</h2>
+    </div>
+    <div class="faq-list">
+      <details open>
         <summary>Do I need a smartphone app?</summary>
-        <p>No. Alerts are delivered directly to your email address. Setup is done through a web page that opens automatically on any device.</p>
+        <div>No. Alerts are delivered directly to your email address. Setup is done through a web page that opens automatically on any phone or laptop — no app download required.</div>
       </details>
       <details>
         <summary>What happens if my WiFi goes down?</summary>
-        <p>The device will attempt to reconnect automatically. Alerts will resume as soon as the connection is restored. You will not receive alerts while offline.</p>
+        <div>The device will attempt to reconnect automatically. Alerts resume the moment the connection is restored. You will not receive alerts while offline, but the sensors continue to run locally.</div>
       </details>
       <details>
         <summary>Can I control when I receive alerts?</summary>
-        <p>Yes. Once activated you will receive a link in every alert email to manage your settings. You can set active hours (e.g. only alert between 22:00 and 06:00) and a minimum cooldown between emails.</p>
+        <div>Yes. Every alert email includes a link to your personal settings page where you can set active hours (e.g. only alert between 22:00 and 06:00) and a minimum cooldown between notifications.</div>
       </details>
       <details>
-        <summary>How does the device get updates?</summary>
-        <p>Firmware updates are pushed automatically over WiFi (OTA). Your device checks for updates every 6 hours and installs them silently without any action required from you.</p>
+        <summary>How does the Airbnb guest stay mode work?</summary>
+        <div>In your settings page you can enter a guest check-in and check-out date. During that window, motion alerts are automatically suppressed — smoke and sound remain fully active. After check-out, everything resumes automatically.</div>
+      </details>
+      <details>
+        <summary>How does the WiFi device scan work?</summary>
+        <div>The device scans your network every hour by sending a probe to every possible address on the network and checking which ones respond. Between 10pm and 6am it compares the count to the previous night and emails you if more devices are connected — useful for detecting unauthorised guests in your Airbnb.</div>
+      </details>
+      <details>
+        <summary>How does the device get firmware updates?</summary>
+        <div>Updates are pushed automatically over WiFi every 6 hours. Your device downloads and installs them silently without any action from you. The LED will blink rapidly during the update — do not unplug during this time.</div>
       </details>
       <details>
         <summary>Is there a contract?</summary>
-        <p>No long-term contract. Plans are month-to-month and can be cancelled at any time. The device remains yours.</p>
-      </details>
-      <details>
-        <summary>What is the range of the PIR sensor?</summary>
-        <p>The sensor has a detection range of approximately 7 metres and a 120° field of view. Optimal placement is in a corner at head height.</p>
+        <div>No long-term contract. Plans are month-to-month and can be cancelled at any time. The hardware remains yours.</div>
       </details>
     </div>
   </div>
-</section>
-
-<!-- CTA -->
-<div class="cta-band" id="contact">
-  <h2>Ready to protect your space?</h2>
-  <p>Get in touch and we will have your device configured and shipped within 48 hours.</p>
-  <a href="mailto:hello@tocatech.co.za" class="btn">Contact Us</a>
 </div>
 
-<!-- FOOTER -->
-<footer>
-  <div style="margin-bottom:12px;">
-    <a href="index.html">Home</a>
-    <a href="manual.html">Manual</a>
-    <a href="mailto:hello@tocatech.co.za">Contact</a>
+<!-- ── CTA BAND ───────────────────────────────────── -->
+<div class="cta-band">
+  <div class="pill" style="background:rgba(255,255,255,.15); color:#fff; margin-bottom:20px;">Get started today</div>
+  <h2>Your property. Always protected.</h2>
+  <p>We configure your device before shipping. It arrives ready to plug in.</p>
+  <div class="cta-btns">
+    <a href="mailto:hello@tocatech.co.za" class="btn btn-white" style="padding:14px 30px; font-size:15px;">Contact Us →</a>
+    <a href="manual.html" class="btn" style="background:rgba(255,255,255,.15); color:#fff; padding:14px 30px; font-size:15px;">Read the Manual</a>
   </div>
-  &copy; 2026 Tocatech. All rights reserved.
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-name">Tocatech</div>
+      <div class="footer-brand-desc">Smart property monitoring for South African homes, Airbnb units and commercial premises. Powered by email — no app required.</div>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#airbnb">For Airbnb</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#how">How it works</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="manual.html">Device Manual</a></li>
+        <li><a href="manual.html#troubleshooting">Troubleshooting</a></li>
+        <li><a href="manual.html#setup">Setup Guide</a></li>
+        <li><a href="manual.html#wifi-report">WiFi Scanning</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="mailto:hello@tocatech.co.za">hello@tocatech.co.za</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Tocatech. All rights reserved.</span>
+    <div>
+      <a href="manual.html">Manual</a>
+      <a href="mailto:hello@tocatech.co.za">Contact</a>
+    </div>
+  </div>
 </footer>
 
 </body>

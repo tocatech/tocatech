@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tocatech – My Settings</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #0d1b2a; color: #e0e0e0; min-height: 100vh; padding: 16px; display: flex; justify-content: center; }
+    .card { background: #1a2a3a; border-radius: 12px; padding: 24px 20px; width: 100%; max-width: 480px; align-self: flex-start; }
+    .brand { color: #4fc3f7; font-size: 24px; font-weight: bold; text-align: center; }
+    .sub { color: #607d8b; font-size: 15px; text-align: center; margin: 6px 0 20px; }
+    label { font-size: 14px; color: #90caf9; display: block; margin: 14px 0 5px; }
+    input[type=text], input[type=number], input[type=email] {
+      width: 100%; padding: 13px; border: 1.5px solid #1e3a5f; border-radius: 8px;
+      background: #0d1b2a; color: #fff; font-size: 16px;
+    }
+    input:focus { border-color: #4fc3f7; outline: none; }
+    select { width: 100%; padding: 13px; border: 1.5px solid #1e3a5f; border-radius: 8px; background: #0d1b2a; color: #fff; font-size: 16px; }
+    .btn { display: block; width: 100%; padding: 15px; margin-top: 20px; background: #4fc3f7; color: #0d1b2a; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-warn  { background: #e65100; color: #fff; margin-top: 12px; }
+    .section { border-top: 1px solid #1e3a5f; margin-top: 24px; padding-top: 20px; }
+    .sec-title { color: #fff; font-size: 17px; font-weight: bold; margin-bottom: 6px; }
+    .sec-note  { color: #607d8b; font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .hint    { font-size: 12px; color: #607d8b; margin-top: 5px; line-height: 1.4; }
+    .warning { background: #3e2800; border-left: 4px solid #f57c00; color: #ffb74d; padding: 12px; border-radius: 4px; font-size: 13px; margin-top: 10px; line-height: 1.4; }
+    .msg-ok  { background: #1b3a2a; border: 1px solid #2d6a4f; color: #74c69d; padding: 13px; border-radius: 8px; font-size: 14px; text-align: center; margin-bottom: 14px; display: none; }
+    .msg-err { background: #3e1a00; border: 1px solid #c62828; color: #ef9a9a; padding: 13px; border-radius: 8px; font-size: 14px; text-align: center; margin-bottom: 14px; display: none; }
+    .loading { color: #607d8b; text-align: center; padding: 40px 0; font-size: 15px; }
+    .device  { font-size: 12px; color: #607d8b; text-align: center; margin-top: 18px; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">Tocatech</div>
+
+  <div id="loading-section" class="loading">Loading your settings…</div>
+  <div class="msg-err" id="load-error" style="display:none"></div>
+
+  <!-- ══════════ SETTINGS ══════════ -->
+  <div id="settings-section" style="display:none">
+    <div class="sub" id="welcome-msg"></div>
+
+    <div class="msg-ok"  id="sched-ok"></div>
+    <div class="msg-err" id="sched-err"></div>
+
+    <!-- Alert hours -->
+    <div class="sec-title">Email Alert Hours</div>
+    <div class="sec-note">Only send alert emails within these hours. Leave blank for any time.</div>
+    <div class="two-col">
+      <div><label>Start (0–23)</label>
+           <input type="number" id="alertStart" min="0" max="23" placeholder="e.g. 8"></div>
+      <div><label>Stop (0–23)</label>
+           <input type="number" id="alertStop"  min="0" max="23" placeholder="e.g. 22"></div>
+    </div>
+    <label>Min. time between emails (minutes)</label>
+    <input type="number" id="cooldown" min="0" placeholder="e.g. 30">
+    <div class="hint">Leave blank for no limit.</div>
+
+    <!-- Motion -->
+    <div class="section">
+      <div class="sec-title">Motion Sensor</div>
+      <select id="motionEnabled">
+        <option value="YES">Enabled — alert on motion</option>
+        <option value="NO">Disabled — ignore motion</option>
+      </select>
+      <div class="two-col" style="margin-top:10px">
+        <div><label>Active from (hr)</label>
+             <input type="number" id="motionStart" min="0" max="23" placeholder="e.g. 22"></div>
+        <div><label>Active until (hr)</label>
+             <input type="number" id="motionStop"  min="0" max="23" placeholder="e.g. 6"></div>
+      </div>
+      <div class="hint">Leave blank to alert at all hours.</div>
+    </div>
+
+    <!-- Smoke -->
+    <div class="section">
+      <div class="sec-title">Smoke Sensor</div>
+      <select id="smokeEnabled">
+        <option value="YES">Enabled — alert on smoke</option>
+        <option value="NO">Disabled — ignore smoke</option>
+      </select>
+      <div class="warning">⚠ It is strongly recommended to keep the smoke sensor enabled at all times.</div>
+    </div>
+
+    <!-- Sound -->
+    <div class="section">
+      <div class="sec-title">Sound Sensor</div>
+      <select id="soundEnabled">
+        <option value="YES">Enabled — alert on sustained loud noise</option>
+        <option value="NO">Disabled — ignore loud noise</option>
+      </select>
+      <div class="two-col" style="margin-top:10px">
+        <div><label>Active from (hr)</label>
+             <input type="number" id="soundStart" min="0" max="23" placeholder="e.g. 22"></div>
+        <div><label>Active until (hr)</label>
+             <input type="number" id="soundStop"  min="0" max="23" placeholder="e.g. 6"></div>
+      </div>
+      <div class="hint">Leave blank to alert at all hours.</div>
+    </div>
+
+    <!-- Environment -->
+    <div class="section">
+      <div class="sec-title">🌡 Environment Thresholds</div>
+      <div class="sec-note">Get an email if temperature or humidity goes outside these limits. Readings every 10 minutes.</div>
+      <div class="two-col">
+        <div><label>Temp too high (°C)</label>
+             <input type="number" id="tempHigh" placeholder="e.g. 35"></div>
+        <div><label>Temp too low (°C)</label>
+             <input type="number" id="tempLow"  placeholder="e.g. 5"></div>
+      </div>
+      <label>Humidity too high (%)</label>
+      <input type="number" id="humidHigh" placeholder="e.g. 75">
+      <div class="hint">Alerts have a 1-hour cooldown between emails.</div>
+    </div>
+
+    <button class="btn" id="save-btn" onclick="saveSchedule()">Save Settings</button>
+
+    <!-- Personal info -->
+    <div class="section">
+      <div class="sec-title">Update My Information</div>
+      <div class="sec-note">Updating your details will place your account on hold pending review by Tocatech.</div>
+      <div class="msg-ok"  id="info-ok"></div>
+      <div class="msg-err" id="info-err"></div>
+      <label>First Name</label>  <input type="text"  id="fname">
+      <label>Surname</label>     <input type="text"  id="surname">
+      <label>Email</label>       <input type="email" id="email">
+      <label>Phone</label>       <input type="text"  id="phone">
+      <label>Street No.</label>  <input type="text"  id="streetno">
+      <label>Street Name</label> <input type="text"  id="streetname">
+      <label>Town</label>        <input type="text"  id="town">
+      <label>Province</label>    <input type="text"  id="province">
+      <label>Country</label>     <input type="text"  id="country">
+      <label>Postal Code</label> <input type="text"  id="postalcode">
+      <div class="warning">⚠ Saving will set your account to PENDING. Alerts pause until Tocatech reactivates your account (usually within 24 hours).</div>
+      <button class="btn btn-warn" id="info-btn" onclick="saveInfo()">Update My Information</button>
+    </div>
+
+    <div class="device" id="device-label"></div>
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqWIzodptf9QiTXTOxmveK1rFQUV5fqxwxVbB44_PYmoq1lUbWr3XHPKIYTIn9k12xjA/exec';
+  const deviceID   = new URLSearchParams(window.location.search).get('deviceID') || '';
+
+  // Auto-load on open
+  window.addEventListener('DOMContentLoaded', loadSettings);
+
+  async function loadSettings() {
+    if (!deviceID) {
+      show('load-error', 'No device ID found. Please use the link from your alert email.');
+      hide('loading-section');
+      return;
+    }
+    try {
+      const res  = await fetch(`${SCRIPT_URL}?action=getSettings&deviceID=${enc(deviceID)}`);
+      const data = await res.json();
+      if (data.error) {
+        show('load-error', data.error);
+        hide('loading-section');
+        return;
+      }
+      populate(data);
+      document.getElementById('welcome-msg').textContent = 'Hello, ' + data.name;
+      document.getElementById('device-label').textContent = 'Device ID: ' + deviceID;
+      hide('loading-section');
+      document.getElementById('settings-section').style.display = 'block';
+    } catch (e) {
+      show('load-error', 'Could not load settings. Please check your connection and try again.');
+      hide('loading-section');
+    }
+  }
+
+  function populate(d) {
+    setInput('alertStart',   d.alertStart);
+    setInput('alertStop',    d.alertStop);
+    setInput('cooldown',     d.cooldown);
+    setSel('motionEnabled',  d.motionEnabled);
+    setInput('motionStart',  d.motionStart);
+    setInput('motionStop',   d.motionStop);
+    setSel('smokeEnabled',   d.smokeEnabled);
+    setSel('soundEnabled',   d.soundEnabled);
+    setInput('soundStart',   d.soundStart);
+    setInput('soundStop',    d.soundStop);
+    setInput('tempHigh',     d.tempHigh);
+    setInput('tempLow',      d.tempLow);
+    setInput('humidHigh',    d.humidHigh);
+    setInput('fname',        d.name);
+    setInput('surname',      d.surname);
+    setInput('email',        d.email);
+    setInput('phone',        d.phone);
+    setInput('streetno',     d.streetno);
+    setInput('streetname',   d.streetname);
+    setInput('town',         d.town);
+    setInput('province',     d.province);
+    setInput('country',      d.country);
+    setInput('postalcode',   d.postalcode);
+  }
+
+  async function saveSchedule() {
+    const btn = document.getElementById('save-btn');
+    hideMsg('sched-ok'); hideMsg('sched-err');
+    btn.textContent = 'Saving…'; btn.disabled = true;
+
+    const p = new URLSearchParams({
+      action: 'update', deviceID,
+      alertStart:    val('alertStart'),  alertStop:     val('alertStop'),
+      cooldown:      val('cooldown'),    motionEnabled: val('motionEnabled'),
+      motionStart:   val('motionStart'), motionStop:    val('motionStop'),
+      smokeEnabled:  val('smokeEnabled'),soundEnabled:  val('soundEnabled'),
+      soundStart:    val('soundStart'),  soundStop:     val('soundStop'),
+      tempHigh:      val('tempHigh'),    tempLow:       val('tempLow'),
+      humidHigh:     val('humidHigh'),
+    });
+
+    try {
+      const data = await (await fetch(`${SCRIPT_URL}?${p}`)).json();
+      data.status === 'saved'
+        ? show('sched-ok',  '✓ Settings saved successfully')
+        : show('sched-err', data.error || 'Failed to save. Please try again.');
+    } catch (e) { show('sched-err', 'Connection error. Please try again.'); }
+
+    btn.textContent = 'Save Settings'; btn.disabled = false;
+  }
+
+  async function saveInfo() {
+    const btn = document.getElementById('info-btn');
+    hideMsg('info-ok'); hideMsg('info-err');
+    if (!confirm('This will place your account on PENDING status and pause alerts until Tocatech reviews your changes. Continue?')) return;
+    btn.textContent = 'Saving…'; btn.disabled = true;
+
+    const p = new URLSearchParams({
+      action: 'updateinfo', deviceID,
+      name:       val('fname'),      surname:    val('surname'),
+      email:      val('email'),      phone:      val('phone'),
+      no:         val('streetno'),   streetname: val('streetname'),
+      town:       val('town'),       province:   val('province'),
+      country:    val('country'),    postalcode: val('postalcode'),
+    });
+
+    try {
+      const data = await (await fetch(`${SCRIPT_URL}?${p}`)).json();
+      data.status === 'pending'
+        ? show('info-ok',  '✓ Information updated. Account is now PENDING reactivation.')
+        : show('info-err', data.error || 'Failed to save. Please try again.');
+    } catch (e) { show('info-err', 'Connection error. Please try again.'); }
+
+    btn.textContent = 'Update My Information'; btn.disabled = false;
+  }
+
+  // Helpers
+  const val = id => document.getElementById(id).value;
+  const enc = s  => encodeURIComponent(s);
+  const hide = id => document.getElementById(id).style.display = 'none';
+  const hideMsg = id => { const e = document.getElementById(id); e.style.display = 'none'; e.textContent = ''; };
+
+  function show(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function setInput(id, v) {
+    if (v === undefined || v === null || v === '') return;
+    document.getElementById(id).value = v;
+  }
+  function setSel(id, v) {
+    if (!v) return;
+    document.getElementById(id).value = String(v).toUpperCase() === 'NO' ? 'NO' : 'YES';
+  }
+</script>
+</body>
+</html>

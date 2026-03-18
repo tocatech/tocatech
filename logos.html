@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tocatech — Brand Logos</title>
+  <style>
+    :root {
+      --blue: #0B74D8;
+      --blue-light: #3a94e8;
+      --dark: #111827;
+      --dark-bg: #0d1b2a;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-600: #6b7280;
+      --gray-800: #1f2937;
+      --white: #ffffff;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--gray-50);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 32px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 15px;
+      color: var(--gray-600);
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .logo-section {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      margin-bottom: 32px;
+      overflow: hidden;
+    }
+
+    .logo-section-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .logo-section-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+
+    .logo-section-header p {
+      font-size: 13px;
+      color: var(--gray-600);
+    }
+
+    .logo-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 32px;
+      min-height: 200px;
+    }
+
+    .logo-preview.light-bg {
+      background: var(--white);
+      background-image: linear-gradient(45deg, var(--gray-100) 25%, transparent 25%),
+                         linear-gradient(-45deg, var(--gray-100) 25%, transparent 25%),
+                         linear-gradient(45deg, transparent 75%, var(--gray-100) 75%),
+                         linear-gradient(-45deg, transparent 75%, var(--gray-100) 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+    }
+
+    .logo-preview.dark-bg {
+      background: var(--dark-bg);
+    }
+
+    .logo-preview.split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 0;
+    }
+
+    .logo-preview.split > div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 32px;
+    }
+
+    .logo-preview.split > .left {
+      background: var(--white);
+    }
+
+    .logo-preview.split > .right {
+      background: var(--dark-bg);
+    }
+
+    .logo-footer {
+      padding: 14px 28px;
+      border-top: 1px solid var(--gray-100);
+      background: var(--gray-50);
+      font-size: 12px;
+      color: var(--gray-600);
+    }
+
+    .logo-footer code {
+      background: var(--gray-200);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .instructions {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 32px;
+    }
+
+    .instructions h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--dark);
+    }
+
+    .instructions ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .instructions li {
+      font-size: 13px;
+      color: var(--gray-600);
+      padding: 4px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .instructions li::before {
+      content: "\2022";
+      color: var(--blue);
+      font-weight: bold;
+      position: absolute;
+      left: 4px;
+    }
+
+    .icon-grid {
+      display: flex;
+      gap: 32px;
+      align-items: flex-end;
+    }
+
+    .icon-size {
+      text-align: center;
+    }
+
+    .icon-size span {
+      display: block;
+      font-size: 11px;
+      color: var(--gray-600);
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Tocatech Brand Logos</h1>
+  <p>Logo variations for Tocatech smart property protection. All logos are inline SVG &mdash; scalable, no external dependencies.</p>
+</header>
+
+<div class="container">
+
+  <div class="instructions">
+    <h3>How to Use</h3>
+    <ul>
+      <li>Right-click any logo and choose <strong>Inspect</strong>, then copy the <code>&lt;svg&gt;</code> element</li>
+      <li>Or view page source and copy the SVG block you need</li>
+      <li>All SVGs use <code>viewBox</code> for infinite scaling &mdash; resize via CSS <code>width</code>/<code>height</code></li>
+      <li>Brand blue: <code>#0B74D8</code> &nbsp;|&nbsp; Dark: <code>#111827</code></li>
+    </ul>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- LOGO 1 — Primary Horizontal -->
+  <!-- ============================================ -->
+  <div class="logo-section">
+    <div class="logo-section-header">
+      <h2>Logo 1 &mdash; Primary Logo (Horizontal)</h2>
+      <p>Main brand mark. Shield + WiFi motif with wordmark and tagline.</p>
+    </div>
+    <div class="logo-preview light-bg">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 100" width="480" height="100">
+        <!-- Shield with WiFi -->
+        <g transform="translate(8, 5)">
+          <!-- Shield body -->
+          <path d="M45 4 L82 18 C82 18 84 56 45 88 C6 56 8 18 8 18 Z"
+                fill="#0B74D8" stroke="none"/>
+          <!-- Inner shield highlight -->
+          <path d="M45 12 L74 23 C74 23 76 52 45 78 C14 52 16 23 16 23 Z"
+                fill="#0a68c2" stroke="none"/>
+          <!-- WiFi arcs inside shield -->
+          <path d="M45 38 Q56 38 62 32" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M45 38 Q52 38 56 35" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="45" cy="38" r="2.5" fill="#ffffff"/>
+          <!-- Small house shape at bottom of shield -->
+          <path d="M33 52 L45 44 L57 52 L57 62 L33 62 Z" fill="none" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+          <rect x="41" y="54" width="8" height="8" fill="#ffffff" rx="1"/>
+        </g>
+        <!-- TOCATECH text -->
+        <text x="108" y="50" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="800" font-size="38" fill="#111827" letter-spacing="3">TOCATECH</text>
+        <!-- Tagline -->
+        <text x="110" y="72" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="500" font-size="13" fill="#6b7280" letter-spacing="4.5">SMART PROPERTY PROTECTION</text>
+        <!-- Accent line -->
+        <rect x="108" y="54" width="52" height="2.5" rx="1.25" fill="#0B74D8"/>
+      </svg>
+    </div>
+    <div class="logo-footer">
+      Recommended size: 480&times;100 &nbsp;|&nbsp; Usage: Website header, documents, presentations
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- LOGO 2 — Icon Only -->
+  <!-- ============================================ -->
+  <div class="logo-section">
+    <div class="logo-section-header">
+      <h2>Logo 2 &mdash; Icon Only (Favicon / App Icon)</h2>
+      <p>Compact shield icon. Works from 32&times;32 to 512&times;512.</p>
+    </div>
+    <div class="logo-preview light-bg">
+      <div class="icon-grid">
+        <!-- 512 -->
+        <div class="icon-size">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="120" height="120">
+            <defs>
+              <linearGradient id="shieldGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1a8aee"/>
+                <stop offset="100%" stop-color="#0B74D8"/>
+              </linearGradient>
+            </defs>
+            <!-- Rounded rect background -->
+            <rect x="4" y="4" width="92" height="92" rx="20" fill="url(#shieldGrad2)"/>
+            <!-- Shield outline -->
+            <path d="M50 16 L78 28 C78 28 80 56 50 80 C20 56 22 28 22 28 Z"
+                  fill="none" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>
+            <!-- WiFi arcs -->
+            <path d="M50 44 Q62 44 70 36" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+            <path d="M50 44 Q58 44 63 40" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="50" cy="44" r="3" fill="#ffffff"/>
+            <!-- Sensor dot / pulse -->
+            <circle cx="50" cy="62" r="4" fill="#ffffff"/>
+            <circle cx="50" cy="62" r="8" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.5"/>
+          </svg>
+          <span>512px</span>
+        </div>
+        <!-- 128 -->
+        <div class="icon-size">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="64" height="64">
+            <rect x="4" y="4" width="92" height="92" rx="20" fill="#0B74D8"/>
+            <path d="M50 16 L78 28 C78 28 80 56 50 80 C20 56 22 28 22 28 Z"
+                  fill="none" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M50 44 Q62 44 70 36" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+            <path d="M50 44 Q58 44 63 40" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="50" cy="44" r="3" fill="#ffffff"/>
+            <circle cx="50" cy="62" r="4" fill="#ffffff"/>
+            <circle cx="50" cy="62" r="8" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.5"/>
+          </svg>
+          <span>128px</span>
+        </div>
+        <!-- 64 -->
+        <div class="icon-size">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="48" height="48">
+            <rect x="4" y="4" width="92" height="92" rx="20" fill="#0B74D8"/>
+            <path d="M50 16 L78 28 C78 28 80 56 50 80 C20 56 22 28 22 28 Z"
+                  fill="none" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M50 42 Q62 42 68 36" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="50" cy="42" r="4" fill="#ffffff"/>
+            <circle cx="50" cy="60" r="5" fill="#ffffff"/>
+          </svg>
+          <span>64px</span>
+        </div>
+        <!-- 32 -->
+        <div class="icon-size">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32">
+            <rect x="4" y="4" width="92" height="92" rx="22" fill="#0B74D8"/>
+            <path d="M50 18 L76 30 C76 30 78 54 50 78 C22 54 24 30 24 30 Z"
+                  fill="none" stroke="#ffffff" stroke-width="6" stroke-linejoin="round"/>
+            <circle cx="50" cy="44" r="6" fill="#ffffff"/>
+            <circle cx="50" cy="62" r="6" fill="#ffffff"/>
+          </svg>
+          <span>32px</span>
+        </div>
+      </div>
+    </div>
+    <div class="logo-footer">
+      Recommended: Use the simplified version at 32px. &nbsp;|&nbsp; Usage: Favicon, app icon, social media avatar
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- LOGO 3 — Stacked -->
+  <!-- ============================================ -->
+  <div class="logo-section">
+    <div class="logo-section-header">
+      <h2>Logo 3 &mdash; Stacked Logo (Website Header)</h2>
+      <p>Icon above wordmark. Square-ish layout for headers and profile images.</p>
+    </div>
+    <div class="logo-preview light-bg">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 200" width="220" height="200">
+        <!-- Shield icon centered -->
+        <g transform="translate(72, 8)">
+          <path d="M38 2 L72 15 C72 15 74 46 38 72 C2 46 4 15 4 15 Z"
+                fill="#0B74D8" stroke="none"/>
+          <path d="M38 10 L64 20 C64 20 66 44 38 64 C10 44 12 20 12 20 Z"
+                fill="#0a68c2" stroke="none"/>
+          <!-- WiFi arcs -->
+          <path d="M38 30 Q49 30 55 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M38 30 Q45 30 49 27" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="38" cy="30" r="2.5" fill="#ffffff"/>
+          <!-- House -->
+          <path d="M27 42 L38 35 L49 42 L49 51 L27 51 Z" fill="none" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+          <rect x="34" y="44" width="8" height="7" fill="#ffffff" rx="1"/>
+        </g>
+        <!-- TOCATECH text -->
+        <text x="110" y="115" text-anchor="middle" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="800" font-size="34" fill="#111827" letter-spacing="4">TOCATECH</text>
+        <!-- Accent line -->
+        <rect x="70" y="124" width="80" height="2.5" rx="1.25" fill="#0B74D8"/>
+        <!-- Tagline -->
+        <text x="110" y="144" text-anchor="middle" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="500" font-size="11" fill="#6b7280" letter-spacing="3.5">SMART PROPERTY PROTECTION</text>
+      </svg>
+    </div>
+    <div class="logo-footer">
+      Recommended size: 220&times;200 &nbsp;|&nbsp; Usage: Website header, app splash screen, profile image
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- LOGO 4 — Light Background Version -->
+  <!-- ============================================ -->
+  <div class="logo-section">
+    <div class="logo-section-header">
+      <h2>Logo 4 &mdash; Light Background Version</h2>
+      <p>Full colour with subtle shadow for use on white or light surfaces.</p>
+    </div>
+    <div class="logo-preview" style="background: #ffffff;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 100" width="480" height="100">
+        <defs>
+          <filter id="logoshadow" x="-4%" y="-4%" width="108%" height="116%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0B74D8" flood-opacity="0.15"/>
+          </filter>
+          <linearGradient id="shieldGrad4" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1a8aee"/>
+            <stop offset="100%" stop-color="#0B74D8"/>
+          </linearGradient>
+        </defs>
+        <g filter="url(#logoshadow)">
+          <!-- Shield -->
+          <g transform="translate(8, 5)">
+            <path d="M45 4 L82 18 C82 18 84 56 45 88 C6 56 8 18 8 18 Z"
+                  fill="url(#shieldGrad4)" stroke="none"/>
+            <path d="M45 12 L74 23 C74 23 76 52 45 78 C14 52 16 23 16 23 Z"
+                  fill="none" stroke="#ffffff" stroke-width="1" opacity="0.3"/>
+            <!-- WiFi arcs -->
+            <path d="M45 38 Q56 38 62 32" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M45 38 Q52 38 56 35" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="45" cy="38" r="2.5" fill="#ffffff"/>
+            <!-- House -->
+            <path d="M33 52 L45 44 L57 52 L57 62 L33 62 Z" fill="none" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+            <rect x="41" y="54" width="8" height="8" fill="#ffffff" rx="1"/>
+          </g>
+          <!-- Text -->
+          <text x="108" y="50" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="800" font-size="38" fill="#111827" letter-spacing="3">TOCATECH</text>
+          <rect x="108" y="54" width="52" height="2.5" rx="1.25" fill="#0B74D8"/>
+          <text x="110" y="72" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="500" font-size="13" fill="#6b7280" letter-spacing="4.5">SMART PROPERTY PROTECTION</text>
+        </g>
+      </svg>
+    </div>
+    <div class="logo-footer">
+      Includes drop shadow for depth on white backgrounds. &nbsp;|&nbsp; Usage: Letterhead, white websites, documents
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- LOGO 5 — Dark Background Version -->
+  <!-- ============================================ -->
+  <div class="logo-section">
+    <div class="logo-section-header">
+      <h2>Logo 5 &mdash; Dark Background Version</h2>
+      <p>White and light blue version for use on dark surfaces.</p>
+    </div>
+    <div class="logo-preview dark-bg">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 100" width="480" height="100">
+        <defs>
+          <linearGradient id="shieldGrad5" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3a94e8"/>
+            <stop offset="100%" stop-color="#0B74D8"/>
+          </linearGradient>
+        </defs>
+        <!-- Shield -->
+        <g transform="translate(8, 5)">
+          <path d="M45 4 L82 18 C82 18 84 56 45 88 C6 56 8 18 8 18 Z"
+                fill="url(#shieldGrad5)" stroke="none"/>
+          <path d="M45 12 L74 23 C74 23 76 52 45 78 C14 52 16 23 16 23 Z"
+                fill="none" stroke="#ffffff" stroke-width="1" opacity="0.2"/>
+          <!-- WiFi arcs -->
+          <path d="M45 38 Q56 38 62 32" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M45 38 Q52 38 56 35" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="45" cy="38" r="2.5" fill="#ffffff"/>
+          <!-- House -->
+          <path d="M33 52 L45 44 L57 52 L57 62 L33 62 Z" fill="none" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+          <rect x="41" y="54" width="8" height="8" fill="#ffffff" rx="1"/>
+        </g>
+        <!-- Text — white on dark -->
+        <text x="108" y="50" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="800" font-size="38" fill="#ffffff" letter-spacing="3">TOCATECH</text>
+        <rect x="108" y="54" width="52" height="2.5" rx="1.25" fill="#3a94e8"/>
+        <text x="110" y="72" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="500" font-size="13" fill="#94a3b8" letter-spacing="4.5">SMART PROPERTY PROTECTION</text>
+      </svg>
+    </div>
+    <div class="logo-footer">
+      Background shown: <code>#0d1b2a</code> &nbsp;|&nbsp; Usage: Dark mode UI, overlays on photos, app dark theme
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- LOGO 6 — Monochrome -->
+  <!-- ============================================ -->
+  <div class="logo-section">
+    <div class="logo-section-header">
+      <h2>Logo 6 &mdash; Monochrome</h2>
+      <p>Single-colour versions for print, fax, stamps, and engraving.</p>
+    </div>
+    <div class="logo-preview split">
+      <!-- Blue mono -->
+      <div class="left">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 80" width="340" height="80">
+          <g transform="translate(4, 2)">
+            <path d="M38 2 L68 14 C68 14 70 44 38 70 C6 44 8 14 8 14 Z"
+                  fill="none" stroke="#0B74D8" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M38 28 Q48 28 53 23" fill="none" stroke="#0B74D8" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M38 28 Q44 28 47 25" fill="none" stroke="#0B74D8" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="38" cy="28" r="2.5" fill="#0B74D8"/>
+            <path d="M28 42 L38 35 L48 42 L48 50 L28 50 Z" fill="none" stroke="#0B74D8" stroke-width="2" stroke-linejoin="round"/>
+            <rect x="34" y="44" width="8" height="6" fill="#0B74D8" rx="1"/>
+          </g>
+          <text x="86" y="42" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="800" font-size="32" fill="#0B74D8" letter-spacing="3">TOCATECH</text>
+          <text x="88" y="60" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="500" font-size="10.5" fill="#0B74D8" letter-spacing="3.5" opacity="0.7">SMART PROPERTY PROTECTION</text>
+        </svg>
+      </div>
+      <!-- Black mono -->
+      <div class="right">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 80" width="340" height="80">
+          <g transform="translate(4, 2)">
+            <path d="M38 2 L68 14 C68 14 70 44 38 70 C6 44 8 14 8 14 Z"
+                  fill="none" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M38 28 Q48 28 53 23" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M38 28 Q44 28 47 25" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="38" cy="28" r="2.5" fill="#ffffff"/>
+            <path d="M28 42 L38 35 L48 42 L48 50 L28 50 Z" fill="none" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+            <rect x="34" y="44" width="8" height="6" fill="#ffffff" rx="1"/>
+          </g>
+          <text x="86" y="42" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="800" font-size="32" fill="#ffffff" letter-spacing="3">TOCATECH</text>
+          <text x="88" y="60" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="500" font-size="10.5" fill="#ffffff" letter-spacing="3.5" opacity="0.7">SMART PROPERTY PROTECTION</text>
+        </svg>
+      </div>
+    </div>
+    <div class="logo-footer">
+      Left: Blue mono on light &nbsp;|&nbsp; Right: White mono on dark &nbsp;|&nbsp; Usage: Print, letterhead, engraving, stamps
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- LOGO 7 — Badge / Stamp -->
+  <!-- ============================================ -->
+  <div class="logo-section">
+    <div class="logo-section-header">
+      <h2>Logo 7 &mdash; Badge / Stamp Style</h2>
+      <p>Circular badge for product labels, device branding, stickers, and certification marks.</p>
+    </div>
+    <div class="logo-preview split">
+      <div class="left">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="180" height="180">
+          <defs>
+            <linearGradient id="badgeGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1a8aee"/>
+              <stop offset="100%" stop-color="#0B74D8"/>
+            </linearGradient>
+          </defs>
+          <!-- Outer ring -->
+          <circle cx="100" cy="100" r="95" fill="none" stroke="#0B74D8" stroke-width="3"/>
+          <circle cx="100" cy="100" r="88" fill="none" stroke="#0B74D8" stroke-width="1.5"/>
+          <!-- Inner fill -->
+          <circle cx="100" cy="100" r="85" fill="url(#badgeGrad)"/>
+          <!-- Curved text — top: TOCATECH -->
+          <path id="topArc" d="M 30,100 A 70,70 0 0,1 170,100" fill="none"/>
+          <text font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="800" font-size="20" fill="#ffffff" letter-spacing="8">
+            <textPath href="#topArc" startOffset="50%" text-anchor="middle">TOCATECH</textPath>
+          </text>
+          <!-- Curved text — bottom: SMART SECURITY -->
+          <path id="bottomArc" d="M 32,108 A 68,68 0 0,0 168,108" fill="none"/>
+          <text font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="600" font-size="11" fill="#ffffff" letter-spacing="3" opacity="0.9">
+            <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">SMART SECURITY</textPath>
+          </text>
+          <!-- Center shield icon -->
+          <g transform="translate(75, 62)">
+            <path d="M25 2 L46 10 C46 10 47 30 25 46 C3 30 4 10 4 10 Z"
+                  fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M25 16 Q32 16 36 12" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+            <path d="M25 16 Q29 16 31 14" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="25" cy="16" r="2" fill="#ffffff"/>
+            <circle cx="25" cy="28" r="2.5" fill="#ffffff"/>
+          </g>
+          <!-- Decorative dots on the horizontal axis -->
+          <circle cx="30" cy="100" r="2" fill="#ffffff" opacity="0.6"/>
+          <circle cx="170" cy="100" r="2" fill="#ffffff" opacity="0.6"/>
+          <!-- EST. 2025 -->
+          <text x="100" y="157" text-anchor="middle" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="600" font-size="10" fill="#ffffff" letter-spacing="2" opacity="0.8">EST. 2025</text>
+        </svg>
+      </div>
+      <div class="right">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="180" height="180">
+          <!-- Outer ring — outline version for dark bg -->
+          <circle cx="100" cy="100" r="95" fill="none" stroke="#3a94e8" stroke-width="3"/>
+          <circle cx="100" cy="100" r="88" fill="none" stroke="#3a94e8" stroke-width="1"/>
+          <circle cx="100" cy="100" r="85" fill="none" stroke="#3a94e8" stroke-width="1.5"/>
+          <!-- Curved text — top -->
+          <path id="topArc2" d="M 30,100 A 70,70 0 0,1 170,100" fill="none"/>
+          <text font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="800" font-size="20" fill="#ffffff" letter-spacing="8">
+            <textPath href="#topArc2" startOffset="50%" text-anchor="middle">TOCATECH</textPath>
+          </text>
+          <!-- Curved text — bottom -->
+          <path id="bottomArc2" d="M 32,108 A 68,68 0 0,0 168,108" fill="none"/>
+          <text font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="600" font-size="11" fill="#94a3b8" letter-spacing="3">
+            <textPath href="#bottomArc2" startOffset="50%" text-anchor="middle">SMART SECURITY</textPath>
+          </text>
+          <!-- Center shield -->
+          <g transform="translate(75, 62)">
+            <path d="M25 2 L46 10 C46 10 47 30 25 46 C3 30 4 10 4 10 Z"
+                  fill="none" stroke="#3a94e8" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M25 16 Q32 16 36 12" fill="none" stroke="#3a94e8" stroke-width="2" stroke-linecap="round"/>
+            <path d="M25 16 Q29 16 31 14" fill="none" stroke="#3a94e8" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="25" cy="16" r="2" fill="#3a94e8"/>
+            <circle cx="25" cy="28" r="2.5" fill="#3a94e8"/>
+          </g>
+          <!-- Dots -->
+          <circle cx="30" cy="100" r="2" fill="#3a94e8" opacity="0.6"/>
+          <circle cx="170" cy="100" r="2" fill="#3a94e8" opacity="0.6"/>
+          <!-- EST. 2025 -->
+          <text x="100" y="157" text-anchor="middle" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-weight="600" font-size="10" fill="#94a3b8" letter-spacing="2">EST. 2025</text>
+        </svg>
+      </div>
+    </div>
+    <div class="logo-footer">
+      Left: Filled badge on light &nbsp;|&nbsp; Right: Outline badge on dark &nbsp;|&nbsp; Usage: Product labels, stickers, device enclosure, certification
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
