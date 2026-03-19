@@ -116,6 +116,19 @@
       <div class="hint">Alerts have a 1-hour cooldown between emails.</div>
     </div>
 
+    <!-- WhatsApp -->
+    <div class="section">
+      <div class="sec-title">📱 WhatsApp Notifications</div>
+      <div class="sec-note">Receive instant WhatsApp alerts alongside email. You can send alerts to a different number than your registered phone.</div>
+      <select id="whatsappEnabled">
+        <option value="YES">Enabled — send WhatsApp alerts</option>
+        <option value="NO">Disabled — email only</option>
+      </select>
+      <label>WhatsApp Number</label>
+      <input type="text" id="whatsappNumber" placeholder="e.g. +27641234567">
+      <div class="hint">Include country code (e.g. +27 for SA, +31 for NL). Leave blank to use your registered phone number.</div>
+    </div>
+
     <button class="btn" id="save-btn" onclick="saveSchedule()">Save Settings</button>
 
     <!-- Personal info -->
@@ -198,6 +211,8 @@
     setInput('province',     d.province);
     setInput('country',      d.country);
     setInput('postalcode',   d.postalcode);
+    setSel('whatsappEnabled', d.whatsappEnabled);
+    setInput('whatsappNumber', d.whatsappNumber);
   }
 
   async function saveSchedule() {
@@ -214,6 +229,7 @@
       soundStart:    val('soundStart'),  soundStop:     val('soundStop'),
       tempHigh:      val('tempHigh'),    tempLow:       val('tempLow'),
       humidHigh:     val('humidHigh'),
+      whatsappEnabled: val('whatsappEnabled'), whatsappNumber: val('whatsappNumber'),
     });
 
     try {
