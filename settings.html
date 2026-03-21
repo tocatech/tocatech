@@ -28,6 +28,9 @@
     .warning { background: #3e2800; border-left: 4px solid #f57c00; color: #ffb74d; padding: 12px; border-radius: 4px; font-size: 13px; margin-top: 10px; line-height: 1.4; }
     .msg-ok  { background: #1b3a2a; border: 1px solid #2d6a4f; color: #74c69d; padding: 13px; border-radius: 8px; font-size: 14px; text-align: center; margin-bottom: 14px; display: none; }
     .msg-err { background: #3e1a00; border: 1px solid #c62828; color: #ef9a9a; padding: 13px; border-radius: 8px; font-size: 14px; text-align: center; margin-bottom: 14px; display: none; }
+    .resend-link { display: block; text-align: center; margin-top: 16px; font-size: 13px; color: #607d8b; cursor: pointer; background: none; border: none; width: 100%; }
+    .resend-link span { color: #4fc3f7; text-decoration: underline; cursor: pointer; }
+    .msg-info { background: #0d2137; border: 1px solid #1e3a5f; color: #90caf9; padding: 13px; border-radius: 8px; font-size: 14px; text-align: center; margin-bottom: 14px; display: none; }
     .loading { color: #607d8b; text-align: center; padding: 40px 0; font-size: 15px; }
     .device  { font-size: 12px; color: #607d8b; text-align: center; margin-top: 18px; }
   </style>
@@ -39,12 +42,17 @@
   <!-- ══════════ PIN LOGIN ══════════ -->
   <div id="pin-section">
     <div class="sub">Enter your PIN to manage settings</div>
-    <div class="msg-err" id="pin-error" style="display:none"></div>
+    <div class="msg-err"  id="pin-error"  style="display:none"></div>
+    <div class="msg-ok"   id="resend-ok"  style="display:none"></div>
+    <div class="msg-info" id="resend-info" style="display:none"></div>
     <label>Your PIN</label>
     <input type="password" id="pin-input" maxlength="5" placeholder="5-digit PIN" autocomplete="off"
            onkeydown="if(event.key==='Enter') submitPin()">
     <div class="hint">Your PIN was emailed to you when your device was registered.</div>
     <button class="btn" id="pin-btn" onclick="submitPin()">Login →</button>
+    <button class="resend-link" id="resend-btn" onclick="resendPin()">
+      Forgot your PIN? <span>Resend via email &amp; WhatsApp</span>
+    </button>
   </div>
 
   <div id="loading-section" class="loading" style="display:none">Loading your settings…</div>
@@ -291,6 +299,26 @@
     } catch (e) { show('info-err', 'Connection error. Please try again.'); }
 
     btn.textContent = 'Update My Information'; btn.disabled = false;
+  }
+
+  async function resendPin() {
+    const btn = document.getElementById('resend-btn');
+    hideMsg('pin-error'); hideMsg('resend-ok'); hideMsg('resend-info');
+    btn.disabled = true; btn.textContent = 'Sending…';
+
+    try {
+      const res  = await fetch(`${SCRIPT_URL}?action=resendPin&deviceID=${enc(deviceID)}`);
+      const data = await res.json();
+      if (data.status === 'sent') {
+        show('resend-ok', '✓ Your PIN has been sent to your registered email' + (data.whatsapp ? ' and WhatsApp' : '') + '.');
+      } else {
+        show('pin-error', data.error || 'Could not resend PIN. Please contact tocatech@gmail.com.');
+      }
+    } catch (e) {
+      show('pin-error', 'Connection error. Please try again.');
+    }
+
+    btn.disabled = false; btn.innerHTML = 'Forgot your PIN? <span>Resend via email &amp; WhatsApp</span>';
   }
 
   // Helpers
