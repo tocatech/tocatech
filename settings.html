@@ -36,7 +36,18 @@
 <div class="card">
   <div class="brand">Tocatech</div>
 
-  <div id="loading-section" class="loading">Loading your settings…</div>
+  <!-- ══════════ PIN LOGIN ══════════ -->
+  <div id="pin-section">
+    <div class="sub">Enter your PIN to manage settings</div>
+    <div class="msg-err" id="pin-error" style="display:none"></div>
+    <label>Your PIN</label>
+    <input type="password" id="pin-input" maxlength="5" placeholder="5-digit PIN" autocomplete="off"
+           onkeydown="if(event.key==='Enter') submitPin()">
+    <div class="hint">Your PIN was emailed to you when your device was registered.</div>
+    <button class="btn" id="pin-btn" onclick="submitPin()">Login →</button>
+  </div>
+
+  <div id="loading-section" class="loading" style="display:none">Loading your settings…</div>
   <div class="msg-err" id="load-error" style="display:none"></div>
 
   <!-- ══════════ SETTINGS ══════════ -->
@@ -158,32 +169,47 @@
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqWIzodptf9QiTXTOxmveK1rFQUV5fqxwxVbB44_PYmoq1lUbWr3XHPKIYTIn9k12xjA/exec';
   const deviceID   = new URLSearchParams(window.location.search).get('deviceID') || '';
+  let   clientPin  = '';
 
-  // Auto-load on open
-  window.addEventListener('DOMContentLoaded', loadSettings);
-
-  async function loadSettings() {
+  window.addEventListener('DOMContentLoaded', () => {
     if (!deviceID) {
+      hide('pin-section');
       show('load-error', 'No device ID found. Please use the link from your alert email.');
-      hide('loading-section');
-      return;
     }
+  });
+
+  async function submitPin() {
+    const pin = document.getElementById('pin-input').value.trim();
+    if (!pin) { show('pin-error', 'Please enter your PIN.'); return; }
+    const btn = document.getElementById('pin-btn');
+    btn.textContent = 'Checking…'; btn.disabled = true;
+    hideMsg('pin-error');
+
     try {
-      const res  = await fetch(`${SCRIPT_URL}?action=getSettings&deviceID=${enc(deviceID)}`);
+      const res  = await fetch(`${SCRIPT_URL}?action=getSettings&deviceID=${enc(deviceID)}&pin=${enc(pin)}`);
       const data = await res.json();
-      if (data.error) {
-        show('load-error', data.error);
-        hide('loading-section');
+      if (data.error === 'INVALID_PIN') {
+        show('pin-error', 'Incorrect PIN. Please try again.');
+        btn.textContent = 'Login →'; btn.disabled = false;
         return;
       }
+      if (data.error) {
+        show('pin-error', data.error);
+        btn.textContent = 'Login →'; btn.disabled = false;
+        return;
+      }
+      clientPin = pin;
+      hide('pin-section');
+      show('loading-section', '');
+      hide('load-error');
       populate(data);
       document.getElementById('welcome-msg').textContent = 'Hello, ' + data.name;
       document.getElementById('device-label').textContent = 'Device ID: ' + deviceID;
       hide('loading-section');
       document.getElementById('settings-section').style.display = 'block';
     } catch (e) {
-      show('load-error', 'Could not load settings. Please check your connection and try again.');
-      hide('loading-section');
+      show('pin-error', 'Connection error. Please try again.');
+      btn.textContent = 'Login →'; btn.disabled = false;
     }
   }
 
@@ -275,7 +301,8 @@
 
   function show(id, msg) {
     const el = document.getElementById(id);
-    el.textContent = msg; el.style.display = 'block';
+    if (msg !== '') el.textContent = msg;
+    el.style.display = 'block';
   }
   function setInput(id, v) {
     if (v === undefined || v === null || v === '') return;
