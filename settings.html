@@ -92,11 +92,36 @@
              <input type="number" id="motionStop"  min="0" max="23" placeholder="e.g. 6"></div>
       </div>
       <div class="hint">Leave blank to alert at all hours.</div>
+
+      <!-- Rental Mode -->
+      <div style="background:#0d2137;border-radius:8px;padding:14px;margin-top:14px;">
+        <div style="color:#4fc3f7;font-size:13px;font-weight:bold;margin-bottom:6px;">🏠 Rental Mode / Airbnb Mode</div>
+        <div style="color:#607d8b;font-size:12px;margin-bottom:10px;">Motion alerts are automatically disabled while your property is occupied by guests. Smoke and sound sensors remain active. Leave blank if no guests are booked.</div>
+        <div class="two-col">
+          <div><label>Check-in date</label>
+               <input type="date" id="motionDisableFrom"></div>
+          <div><label>Check-out date</label>
+               <input type="date" id="motionDisableTo"></div>
+        </div>
+        <div class="hint" style="margin-top:8px;">Past dates are ignored automatically — no need to clear them after the stay.</div>
+      </div>
+
+      <!-- Nightly WiFi Scan -->
+      <div style="background:#0d2137;border-radius:8px;padding:14px;margin-top:14px;">
+        <div style="color:#4fc3f7;font-size:13px;font-weight:bold;margin-bottom:6px;">📡 Nightly WiFi Device Report</div>
+        <div style="color:#607d8b;font-size:12px;margin-bottom:10px;">Between 2am and 6am, the device counts phones on your WiFi and sends you a nightly report. If tonight's count is higher than last night's, it sends an alert instead.</div>
+        <label>Send report when this many or more devices are found</label>
+        <input type="number" id="nightScanMin" min="0" max="20" placeholder="e.g. 2">
+        <div class="hint">Default is 2. Set to 0 to get a report every night regardless of count.</div>
+        <div id="last-scan-info" style="display:none;margin-top:10px;background:#1a2a3a;border-radius:6px;padding:10px;font-size:13px;color:#90caf9;"></div>
+      </div>
     </div>
 
     <!-- Smoke -->
     <div class="section">
-      <div class="sec-title">Smoke Sensor</div>
+      <div class="sec-title">🚬 Cigarette Smoke Detection</div>
+      <div class="sec-note">The device uses a PM2.5 air quality sensor to detect cigarette smoke. When sustained elevated particulate levels are detected, you receive an immediate alert email with air quality readings.</div>
+      <div id="pm-info" style="display:none;margin-bottom:12px;background:#1a2a3a;border-radius:6px;padding:10px;font-size:13px;color:#90caf9;"></div>
       <select id="smokeEnabled">
         <option value="YES">Enabled — alert on smoke</option>
         <option value="NO">Disabled — ignore smoke</option>
@@ -247,6 +272,20 @@
     setInput('postalcode',   d.postalcode);
     setSel('whatsappEnabled', d.whatsappEnabled);
     setInput('whatsappNumber', d.whatsappNumber);
+    setInput('motionDisableFrom', d.motionDisableFrom);
+    setInput('motionDisableTo',   d.motionDisableTo);
+    setInput('nightScanMin',      d.nightScanMin);
+
+    if (d.lastScanTime || d.lastScanCount !== '') {
+      const el = document.getElementById('last-scan-info');
+      el.innerHTML = '<b>Last scan:</b> ' + (d.lastScanTime || '—') + ' &nbsp;·&nbsp; <b>Devices found:</b> ' + (d.lastScanCount !== '' ? d.lastScanCount : '—');
+      el.style.display = 'block';
+    }
+    if (d.lastPM25 !== '') {
+      const el = document.getElementById('pm-info');
+      el.innerHTML = '<b>Last PM2.5:</b> ' + d.lastPM25 + ' µg/m³' + (d.lastPM10 !== '' ? ' &nbsp;·&nbsp; <b>PM10:</b> ' + d.lastPM10 + ' µg/m³' : '') + '<div style="color:#607d8b;font-size:12px;margin-top:4px;">Normal indoor air: below 12 µg/m³. Cigarette smoke typically causes readings above 150 µg/m³.</div>';
+      el.style.display = 'block';
+    }
   }
 
   async function saveSchedule() {
@@ -264,6 +303,8 @@
       tempHigh:      val('tempHigh'),    tempLow:       val('tempLow'),
       humidHigh:     val('humidHigh'),
       whatsappEnabled: val('whatsappEnabled'), whatsappNumber: val('whatsappNumber'),
+      motionDisableFrom: val('motionDisableFrom'), motionDisableTo: val('motionDisableTo'),
+      nightScanMin:  val('nightScanMin'),
     });
 
     try {
