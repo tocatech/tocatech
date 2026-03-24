@@ -329,42 +329,53 @@
     setInput('nightScanMin',      d.nightScanMin);
 
     // Contract section
-    if (d.contractStart) {
+    // Always show contract section — use today as fallback if not yet set
+    {
       const now         = new Date();
-      const cStart      = new Date(d.contractStart);
-      const cEnd        = d.contractEnd ? new Date(d.contractEnd) : null;
-      const mFee        = d.monthlyFee  || 249;
+      const cStart      = d.contractStart ? new Date(d.contractStart) : null;
+      const cEnd        = d.contractEnd   ? new Date(d.contractEnd)   : null;
+      const mFee        = d.monthlyFee     || 249;
       const cMths       = d.contractMonths || 12;
-      const msPerMonth  = 365.25 / 12 * 24 * 3600 * 1000;
-      const mDone       = Math.min(cMths, Math.floor((now - cStart) / msPerMonth));
-      const mRemaining  = Math.max(0, cMths - mDone);
-      const inContract  = cEnd ? now < cEnd : false;
-      const etf         = inContract ? mRemaining * mFee : 0;
       const fmtDate     = dt => dt.toLocaleDateString('en-ZA', { day:'2-digit', month:'short', year:'numeric' });
 
-      document.getElementById('c-start').textContent     = fmtDate(cStart);
-      document.getElementById('c-end').textContent       = cEnd ? fmtDate(cEnd) : '—';
-      document.getElementById('c-done').textContent      = mDone + ' / ' + cMths + ' months';
-      document.getElementById('c-remaining').textContent = mRemaining > 0 ? mRemaining + ' month(s)' : '✅ Complete';
-      document.getElementById('c-fee').textContent       = 'R' + mFee + '/month';
+      if (cStart) {
+        const msPerMonth  = 365.25 / 12 * 24 * 3600 * 1000;
+        const mDone       = Math.min(cMths, Math.floor((now - cStart) / msPerMonth));
+        const mRemaining  = Math.max(0, cMths - mDone);
+        const inContract  = cEnd ? now < cEnd : false;
+        const etf         = inContract ? mRemaining * mFee : 0;
 
-      const etfBox = document.getElementById('c-etf-box');
-      if (inContract && mRemaining > 0) {
-        etfBox.className = 'etf-box';
-        etfBox.innerHTML = '⚠ <b>Early termination fee applies.</b> Cancelling now with '
-          + mRemaining + ' month(s) remaining will incur a fee of <b>R' + etf + '</b> ('
-          + mRemaining + ' × R' + mFee + '). This must be settled before cancellation is confirmed.';
-        etfBox.style.display = 'block';
+        document.getElementById('c-start').textContent     = fmtDate(cStart);
+        document.getElementById('c-end').textContent       = cEnd ? fmtDate(cEnd) : '—';
+        document.getElementById('c-done').textContent      = mDone + ' / ' + cMths + ' months';
+        document.getElementById('c-remaining').textContent = mRemaining > 0 ? mRemaining + ' month(s)' : '✅ Complete';
+        document.getElementById('c-fee').textContent       = 'R' + mFee + '/month';
+
+        const etfBox = document.getElementById('c-etf-box');
+        if (inContract && mRemaining > 0) {
+          etfBox.className = 'etf-box';
+          etfBox.innerHTML = '⚠ <b>Early termination fee applies.</b> Cancelling now with '
+            + mRemaining + ' month(s) remaining will incur a fee of <b>R' + etf + '</b> ('
+            + mRemaining + ' × R' + mFee + '). This must be settled before cancellation is confirmed.';
+          etfBox.style.display = 'block';
+        } else {
+          etfBox.className = 'etf-free';
+          etfBox.innerHTML = '✅ <b>No early termination fee.</b> Your 12-month contract is complete. You may cancel at any time.';
+          etfBox.style.display = 'block';
+        }
       } else {
-        etfBox.className = 'etf-free';
-        etfBox.innerHTML = '✅ <b>No early termination fee.</b> Your 12-month contract is complete. You may cancel at any time.';
-        etfBox.style.display = 'block';
+        // Contract not yet set — device may be pending activation
+        document.getElementById('c-start').textContent     = 'Pending activation';
+        document.getElementById('c-end').textContent       = '—';
+        document.getElementById('c-done').textContent      = '—';
+        document.getElementById('c-remaining').textContent = '—';
+        document.getElementById('c-fee').textContent       = 'R' + mFee + '/month';
       }
 
       if (d.cancellationStatus === 'REQUESTED') {
         document.getElementById('c-requested-box').style.display = 'block';
-      } else {
-        document.getElementById('c-cancel-wrap').style.display = 'block';
+      } else if (cStart) {
+        document.getElementById('c-cancel-wrap').style.display   = 'block';
       }
 
       document.getElementById('contract-section').style.display = 'block';
