@@ -55,8 +55,15 @@
     <div class="msg-ok"   id="resend-ok"  style="display:none"></div>
     <div class="msg-info" id="resend-info" style="display:none"></div>
     <label>Your PIN</label>
-    <input type="password" id="pin-input" maxlength="6" placeholder="6-digit PIN" autocomplete="off"
-           onkeydown="if(event.key==='Enter') submitPin()">
+    <div style="position:relative;">
+      <input type="password" id="pin-input" maxlength="6" placeholder="6-digit PIN" autocomplete="off"
+             onkeydown="if(event.key==='Enter') submitPin()"
+             style="padding-right:48px;">
+      <button type="button" onclick="togglePin()" id="pin-eye"
+              style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;width:auto;margin:0;font-size:18px;color:#607d8b;">
+        👁
+      </button>
+    </div>
     <div class="hint">Your 6-digit PIN was emailed to you when your device was registered.</div>
     <button class="btn" id="pin-btn" onclick="submitPin()">Login →</button>
     <button class="resend-link" id="resend-btn" onclick="resendPin()">
@@ -485,6 +492,18 @@
     } catch (e) {
       btn.textContent = 'Request Cancellation'; btn.disabled = false;
       alert('Connection error. Please try again or contact support@tocatech.co.za');
+    }
+  }
+
+  function togglePin() {
+    const input = document.getElementById('pin-input');
+    const eye   = document.getElementById('pin-eye');
+    if (input.type === 'password') {
+      input.type  = 'text';
+      eye.textContent = '🙈';
+    } else {
+      input.type  = 'password';
+      eye.textContent = '👁';
     }
   }
 
