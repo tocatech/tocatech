@@ -213,6 +213,37 @@
 
     <div class="device" id="device-label"></div>
 
+    <!-- ══════════ CALENDAR INTEGRATION ══════════ -->
+    <div class="section">
+      <div class="sec-title">📅 Rental Platform Calendar</div>
+      <div class="sec-note">Paste your Airbnb or Booking.com iCal link. Tocatech will automatically suppress motion alerts while your property is booked — and alert you the moment someone is there when it should be empty.</div>
+      <div class="msg-ok"  id="cal-ok"  style="display:none"></div>
+      <div class="msg-err" id="cal-err" style="display:none"></div>
+
+      <label>iCal URL <span style="color:#607d8b;font-size:12px;">(Airbnb / Booking.com / VRBO)</span></label>
+      <input type="text" id="icalUrl" placeholder="https://www.airbnb.com/calendar/ical/...">
+      <div class="hint" style="font-size:12px;color:#607d8b;margin-top:6px;">
+        <b style="color:#90caf9;">Airbnb:</b> Listing → Availability → Export Calendar<br>
+        <b style="color:#90caf9;">Booking.com:</b> Property → Calendar → Export → iCal
+      </div>
+
+      <!-- Live status display -->
+      <div id="cal-status-box" style="display:none;margin-top:16px;background:#0d2137;border-radius:8px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="font-size:13px;font-weight:bold;color:#90caf9;">Current Status</span>
+          <span id="cal-status-badge" style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:50px;"></span>
+        </div>
+        <div style="font-size:12px;color:#607d8b;" id="cal-booking-end"></div>
+        <div style="font-size:12px;color:#607d8b;margin-top:4px;" id="cal-next-booking"></div>
+        <div style="font-size:11px;color:#445;margin-top:8px;" id="cal-last-sync"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn" style="flex:1;" onclick="saveIcalUrl()">Save iCal URL</button>
+        <button class="btn" style="flex:0 0 auto;width:auto;padding:15px 18px;background:#1e3a5f;color:#4fc3f7;" onclick="refreshCalendar()" title="Refresh now">⟳</button>
+      </div>
+    </div>
+
     <!-- ══════════ CONTRACT & CANCELLATION ══════════ -->
     <div class="section" id="contract-section" style="display:none">
       <div class="sec-title">📄 Contract & Subscription</div>
@@ -330,6 +361,33 @@
     setInput('motionDisableTo',   d.motionDisableTo);
     setInput('nightScanMin',      d.nightScanMin);
 
+    // Calendar section
+    setInput('icalUrl', d.icalUrl);
+    if (d.calendarStatus) {
+      const box = document.getElementById('cal-status-box');
+      box.style.display = 'block';
+      const badge = document.getElementById('cal-status-badge');
+      if (d.calendarStatus === 'BOOKED') {
+        badge.textContent = '🏠 Booked';
+        badge.style.cssText = 'background:rgba(76,175,80,0.15);color:#4caf50;font-size:12px;font-weight:700;padding:3px 10px;border-radius:50px;';
+        if (d.currentBookingEnd) {
+          const end = new Date(d.currentBookingEnd);
+          document.getElementById('cal-booking-end').textContent = 'Current booking ends: ' + end.toLocaleDateString('en-ZA');
+        }
+      } else {
+        badge.textContent = '🔓 Vacant — motion alerts ON';
+        badge.style.cssText = 'background:rgba(79,195,247,0.12);color:#4fc3f7;font-size:12px;font-weight:700;padding:3px 10px;border-radius:50px;';
+      }
+      if (d.nextBookingStart) {
+        const next = new Date(d.nextBookingStart);
+        document.getElementById('cal-next-booking').textContent = 'Next booking: ' + next.toLocaleDateString('en-ZA');
+      }
+      if (d.lastCalendarSync) {
+        const sync = new Date(d.lastCalendarSync);
+        document.getElementById('cal-last-sync').textContent = 'Last synced: ' + sync.toLocaleString('en-ZA');
+      }
+    }
+
     // Contract section
     // Always show contract section — use today as fallback if not yet set
     {
@@ -422,6 +480,51 @@
     } catch (e) { show('sched-err', 'Connection error. Please try again.'); }
 
     btn.textContent = 'Save Settings'; btn.disabled = false;
+  }
+
+  async function saveIcalUrl() {
+    const url = document.getElementById('icalUrl').value.trim();
+    hideMsg('cal-ok'); hideMsg('cal-err');
+    if (!url) { show('cal-err', 'Please enter an iCal URL first.'); return; }
+    if (!url.startsWith('http')) { show('cal-err', 'URL must start with http or https.'); return; }
+    try {
+      const r = await fetch(`${SCRIPT_URL}?action=update&deviceID=${enc(deviceID)}&pin=${enc(clientPin)}&icalUrl=${enc(url)}`);
+      const d = await r.json();
+      if (d.ok) {
+        show('cal-ok', '✅ iCal URL saved. Syncing now…');
+        await refreshCalendar();
+      } else { show('cal-err', d.error || 'Failed to save.'); }
+    } catch(e) { show('cal-err', 'Connection error. Try again.'); }
+  }
+
+  async function refreshCalendar() {
+    try {
+      const r = await fetch(`${SCRIPT_URL}?action=syncCalendar&deviceID=${enc(deviceID)}&pin=${enc(clientPin)}`);
+      const d = await r.json();
+      const box = document.getElementById('cal-status-box');
+      box.style.display = 'block';
+      const badge = document.getElementById('cal-status-badge');
+      if (d.status === 'BOOKED') {
+        badge.textContent = '🏠 Booked — motion alerts OFF';
+        badge.style.cssText = 'background:rgba(76,175,80,0.15);color:#4caf50;font-size:12px;font-weight:700;padding:3px 10px;border-radius:50px;';
+        if (d.currentBookingEnd) {
+          const end = new Date(d.currentBookingEnd);
+          document.getElementById('cal-booking-end').textContent = 'Current booking ends: ' + end.toLocaleDateString('en-ZA');
+        }
+      } else {
+        badge.textContent = '🔓 Vacant — motion alerts ON';
+        badge.style.cssText = 'background:rgba(79,195,247,0.12);color:#4fc3f7;font-size:12px;font-weight:700;padding:3px 10px;border-radius:50px;';
+        document.getElementById('cal-booking-end').textContent = '';
+      }
+      if (d.nextBookingStart) {
+        const next = new Date(d.nextBookingStart);
+        document.getElementById('cal-next-booking').textContent = 'Next booking: ' + next.toLocaleDateString('en-ZA');
+      }
+      document.getElementById('cal-last-sync').textContent = 'Last synced: just now';
+      if (!document.getElementById('cal-ok').style.display || document.getElementById('cal-ok').style.display === 'none') {
+        show('cal-ok', '✅ Calendar synced successfully.');
+      }
+    } catch(e) { show('cal-err', 'Sync failed. Check your iCal URL is correct.'); }
   }
 
   async function saveInfo() {
