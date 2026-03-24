@@ -55,9 +55,9 @@
     <div class="msg-ok"   id="resend-ok"  style="display:none"></div>
     <div class="msg-info" id="resend-info" style="display:none"></div>
     <label>Your PIN</label>
-    <input type="password" id="pin-input" maxlength="5" placeholder="5-digit PIN" autocomplete="off"
+    <input type="password" id="pin-input" maxlength="6" placeholder="6-digit PIN" autocomplete="off"
            onkeydown="if(event.key==='Enter') submitPin()">
-    <div class="hint">Your PIN was emailed to you when your device was registered.</div>
+    <div class="hint">Your 6-digit PIN was emailed to you when your device was registered.</div>
     <button class="btn" id="pin-btn" onclick="submitPin()">Login →</button>
     <button class="resend-link" id="resend-btn" onclick="resendPin()">
       Forgot your PIN? <span>Resend via email &amp; WhatsApp</span>
@@ -273,11 +273,6 @@
     try {
       const res  = await fetch(`${SCRIPT_URL}?action=getSettings&deviceID=${enc(deviceID)}&pin=${enc(pin)}`);
       const data = await res.json();
-      if (data.error === 'INVALID_PIN') {
-        show('pin-error', 'Incorrect PIN. Please try again.');
-        btn.textContent = 'Login →'; btn.disabled = false;
-        return;
-      }
       if (data.error) {
         show('pin-error', data.error);
         btn.textContent = 'Login →'; btn.disabled = false;
