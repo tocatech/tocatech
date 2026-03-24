@@ -33,6 +33,15 @@
     .msg-info { background: #0d2137; border: 1px solid #1e3a5f; color: #90caf9; padding: 13px; border-radius: 8px; font-size: 14px; text-align: center; margin-bottom: 14px; display: none; }
     .loading { color: #607d8b; text-align: center; padding: 40px 0; font-size: 15px; }
     .device  { font-size: 12px; color: #607d8b; text-align: center; margin-top: 18px; }
+    .contract-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1e3a5f; font-size: 14px; }
+    .contract-row:last-of-type { border-bottom: none; }
+    .contract-label { color: #607d8b; }
+    .contract-value { color: #e0e0e0; font-weight: bold; }
+    .etf-box { background: #3e1500; border-left: 4px solid #e65100; color: #ffb74d; padding: 14px; border-radius: 6px; font-size: 13px; line-height: 1.6; margin: 14px 0; }
+    .etf-free { background: #1b3a2a; border-left: 4px solid #2d6a4f; color: #74c69d; padding: 14px; border-radius: 6px; font-size: 13px; margin: 14px 0; }
+    .btn-cancel { background: #c62828; color: #fff; margin-top: 8px; }
+    .btn-cancel:hover { background: #b71c1c; }
+    .requested-box { background: #3e2800; border-left: 4px solid #f57c00; color: #ffb74d; padding: 14px; border-radius: 6px; font-size: 13px; line-height: 1.6; margin: 14px 0; }
   </style>
 </head>
 <body>
@@ -196,6 +205,49 @@
     </div>
 
     <div class="device" id="device-label"></div>
+
+    <!-- ══════════ CONTRACT & CANCELLATION ══════════ -->
+    <div class="section" id="contract-section" style="display:none">
+      <div class="sec-title">📄 Contract & Subscription</div>
+      <div class="sec-note">Your Tocatech device is provided on a 12-month service contract.</div>
+
+      <div id="contract-details" style="margin:14px 0;background:#0d2137;border-radius:8px;padding:14px;">
+        <div class="contract-row">
+          <span class="contract-label">Contract started</span>
+          <span class="contract-value" id="c-start">—</span>
+        </div>
+        <div class="contract-row">
+          <span class="contract-label">Contract ends</span>
+          <span class="contract-value" id="c-end">—</span>
+        </div>
+        <div class="contract-row">
+          <span class="contract-label">Months completed</span>
+          <span class="contract-value" id="c-done">—</span>
+        </div>
+        <div class="contract-row">
+          <span class="contract-label">Months remaining</span>
+          <span class="contract-value" id="c-remaining">—</span>
+        </div>
+        <div class="contract-row">
+          <span class="contract-label">Monthly fee</span>
+          <span class="contract-value" id="c-fee">—</span>
+        </div>
+      </div>
+
+      <div id="c-etf-box" style="display:none"></div>
+
+      <div id="c-requested-box" class="requested-box" style="display:none">
+        ⏳ <b>Cancellation request pending.</b> Your request has been submitted and is being reviewed by Tocatech. You will receive an email once processed. Your device remains active until confirmed.
+      </div>
+
+      <div id="c-cancel-wrap" style="display:none">
+        <button class="btn btn-cancel" id="cancel-btn" onclick="requestCancellation()">Request Cancellation</button>
+        <div class="hint" style="margin-top:8px;text-align:center;">
+          Your request will be reviewed. Device stays active until cancellation is confirmed.
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -275,6 +327,48 @@
     setInput('motionDisableFrom', d.motionDisableFrom);
     setInput('motionDisableTo',   d.motionDisableTo);
     setInput('nightScanMin',      d.nightScanMin);
+
+    // Contract section
+    if (d.contractStart) {
+      const now         = new Date();
+      const cStart      = new Date(d.contractStart);
+      const cEnd        = d.contractEnd ? new Date(d.contractEnd) : null;
+      const mFee        = d.monthlyFee  || 249;
+      const cMths       = d.contractMonths || 12;
+      const msPerMonth  = 365.25 / 12 * 24 * 3600 * 1000;
+      const mDone       = Math.min(cMths, Math.floor((now - cStart) / msPerMonth));
+      const mRemaining  = Math.max(0, cMths - mDone);
+      const inContract  = cEnd ? now < cEnd : false;
+      const etf         = inContract ? mRemaining * mFee : 0;
+      const fmtDate     = dt => dt.toLocaleDateString('en-ZA', { day:'2-digit', month:'short', year:'numeric' });
+
+      document.getElementById('c-start').textContent     = fmtDate(cStart);
+      document.getElementById('c-end').textContent       = cEnd ? fmtDate(cEnd) : '—';
+      document.getElementById('c-done').textContent      = mDone + ' / ' + cMths + ' months';
+      document.getElementById('c-remaining').textContent = mRemaining > 0 ? mRemaining + ' month(s)' : '✅ Complete';
+      document.getElementById('c-fee').textContent       = 'R' + mFee + '/month';
+
+      const etfBox = document.getElementById('c-etf-box');
+      if (inContract && mRemaining > 0) {
+        etfBox.className = 'etf-box';
+        etfBox.innerHTML = '⚠ <b>Early termination fee applies.</b> Cancelling now with '
+          + mRemaining + ' month(s) remaining will incur a fee of <b>R' + etf + '</b> ('
+          + mRemaining + ' × R' + mFee + '). This must be settled before cancellation is confirmed.';
+        etfBox.style.display = 'block';
+      } else {
+        etfBox.className = 'etf-free';
+        etfBox.innerHTML = '✅ <b>No early termination fee.</b> Your 12-month contract is complete. You may cancel at any time.';
+        etfBox.style.display = 'block';
+      }
+
+      if (d.cancellationStatus === 'REQUESTED') {
+        document.getElementById('c-requested-box').style.display = 'block';
+      } else {
+        document.getElementById('c-cancel-wrap').style.display = 'block';
+      }
+
+      document.getElementById('contract-section').style.display = 'block';
+    }
 
     if (d.lastScanTime || d.lastScanCount !== '') {
       const el = document.getElementById('last-scan-info');
@@ -360,6 +454,32 @@
     }
 
     btn.disabled = false; btn.innerHTML = 'Forgot your PIN? <span>Resend via email &amp; WhatsApp</span>';
+  }
+
+  async function requestCancellation() {
+    const etfText = document.getElementById('c-etf-box').className === 'etf-box'
+      ? '\n\nAn early termination fee may apply. You will be contacted by Tocatech before the cancellation is confirmed.'
+      : '\n\nNo early termination fee applies.';
+
+    if (!confirm('Are you sure you want to request cancellation of your Tocatech subscription for device ' + deviceID + '?' + etfText + '\n\nYour device will remain active until the cancellation is confirmed by our team.')) return;
+
+    const btn = document.getElementById('cancel-btn');
+    btn.textContent = 'Submitting…'; btn.disabled = true;
+
+    try {
+      const res  = await fetch(`${SCRIPT_URL}?action=cancelRequest&deviceID=${enc(deviceID)}&pin=${enc(clientPin)}`);
+      const text = await res.text();
+      if (text === 'CANCELLATION_REQUESTED') {
+        document.getElementById('c-cancel-wrap').style.display   = 'none';
+        document.getElementById('c-requested-box').style.display = 'block';
+      } else {
+        btn.textContent = 'Request Cancellation'; btn.disabled = false;
+        alert('Could not submit request: ' + text + '. Please contact support@tocatech.co.za');
+      }
+    } catch (e) {
+      btn.textContent = 'Request Cancellation'; btn.disabled = false;
+      alert('Connection error. Please try again or contact support@tocatech.co.za');
+    }
   }
 
   // Helpers
