@@ -92,8 +92,8 @@
     </div>
     <div class="hint">Your 6-digit PIN was emailed to you when your device was registered.</div>
     <button class="btn" id="pin-btn" onclick="submitPin()">Login →</button>
-    <button class="resend-link" id="resend-btn" onclick="resendPin()">
-      Forgot your PIN? <span>Resend via email &amp; WhatsApp</span>
+    <button class="resend-link" id="resend-btn" onclick="resetPin()">
+      Forgot your PIN? <span>Send reset link</span>
     </button>
   </div>
 
@@ -1143,24 +1143,20 @@
     btn.textContent = 'Update My Information'; btn.disabled = false;
   }
 
-  async function resendPin() {
+  async function resetPin() {
     const btn = document.getElementById('resend-btn');
     hideMsg('pin-error'); hideMsg('resend-ok'); hideMsg('resend-info');
     btn.disabled = true; btn.textContent = 'Sending…';
 
     try {
-      const res  = await fetch(`${SCRIPT_URL}?action=resendPin&deviceID=${enc(deviceID)}`);
+      const res  = await fetch(`${SCRIPT_URL}?action=forgotPin&type=device&deviceID=${enc(deviceID)}`);
       const data = await res.json();
-      if (data.status === 'sent') {
-        show('resend-ok', '✓ Your PIN has been sent to your registered email' + (data.whatsapp ? ' and WhatsApp' : '') + '.');
-      } else {
-        show('pin-error', data.error || 'Could not resend PIN. Please contact tocatech@gmail.com.');
-      }
+      show('resend-ok', '📧 If this device is registered, a reset link has been sent to the registered email. Check your inbox.');
     } catch (e) {
       show('pin-error', 'Connection error. Please try again.');
     }
 
-    btn.disabled = false; btn.innerHTML = 'Forgot your PIN? <span>Resend via email &amp; WhatsApp</span>';
+    btn.disabled = false; btn.innerHTML = 'Forgot your PIN? <span>Send reset link</span>';
   }
 
   async function requestCancellation() {
