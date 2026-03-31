@@ -953,12 +953,25 @@ function doLogout() {
       ? "Updated " + timeAgo(d.lastEnvUpdate)
       : "No data yet — updates every 10 min";
 
-    // Last alert — show type + acknowledge button
-    const lastAlert = d.lastAlert ? timeAgo(d.lastAlert) : "No alerts";
-    const alertColor = d.lastAlert && (Date.now() - new Date(d.lastAlert)) < 86400000
-      ? "orange" : "";
-    const alertTypeLabel = d.lastAlertType || "";
+    // Per-type alert rows
     const alertAcked = d.alertAcknowledged === true;
+    function alertRow(label, icon, ts) {
+      if (!ts) return '';
+      const ago = timeAgo(ts);
+      const recent = (Date.now() - new Date(ts).getTime()) < 86400000;
+      return `<div class="info-row">
+        <span class="info-key">${icon} ${label}</span>
+        <span class="info-val ${recent ? 'orange' : ''}">${ago}</span>
+      </div>`;
+    }
+    const alertRows = [
+      alertRow("Motion",    "🚶", d.lastMotionAlert),
+      alertRow("Smoke",     "💨", d.lastSmokeAlert),
+      alertRow("Cigarette", "🚬", d.lastCigSmokeAlert),
+      alertRow("Sound",     "🔊", d.lastSoundAlert),
+      alertRow("Env alert", "🌡️", d.lastEnvAlertSent),
+    ].filter(Boolean).join("\n");
+    const hasAnyAlert = d.lastMotionAlert || d.lastSmokeAlert || d.lastCigSmokeAlert || d.lastSoundAlert || d.lastEnvAlertSent;
 
     // Calendar info row
     let calRow = "";
@@ -1057,16 +1070,13 @@ function doLogout() {
       <!-- Info rows -->
       <div class="card-info">
         ${statusRow}
-        <div class="info-row">
-          <span class="info-key">Last alert</span>
-          <span class="info-val ${alertColor}">${lastAlert}${alertTypeLabel ? ' — ' + esc(alertTypeLabel) : ''}</span>
-        </div>
-        ${d.lastAlert && !alertAcked ? `<div style="text-align:right;margin:-4px 0 6px;">
+        ${hasAnyAlert ? alertRows : '<div class="info-row"><span class="info-key">Alerts</span><span class="info-val">No alerts yet</span></div>'}
+        ${hasAnyAlert && !alertAcked ? `<div style="text-align:right;margin:-4px 0 6px;">
           <button onclick="ackAlert('${d.deviceID}')" id="ack-${d.deviceID}"
             style="background:#1a3a54;color:#4fc3f7;border:1px solid #1e3a5f;border-radius:6px;padding:6px 14px;font-size:11px;cursor:pointer;">
             ✓ Acknowledge alert</button>
         </div>` : ''}
-        ${d.lastAlert && alertAcked ? `<div style="text-align:right;margin:-4px 0 6px;">
+        ${hasAnyAlert && alertAcked ? `<div style="text-align:right;margin:-4px 0 6px;">
           <span style="color:#74c69d;font-size:11px;">✓ Acknowledged${d.alertAcknowledgedAt ? ' — ' + timeAgo(d.alertAcknowledgedAt) : ''}</span>
         </div>` : ''}
         ${calRow}
