@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tocatech – Property Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Reset & Base ──────────────────────────────────────── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #080e18;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    /* ── Login screen ────────────────────────────────────── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-card {
+      background: #1a2a3a;
+      border-radius: 16px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+    .brand { color: #4fc3f7; font-size: 26px; font-weight: bold; text-align: center; letter-spacing: 1px; }
+    .brand-sub { color: #607d8b; font-size: 14px; text-align: center; margin: 4px 0 28px; }
+
+    label { font-size: 13px; color: #90caf9; display: block; margin: 14px 0 5px; }
+    input[type=text], input[type=email], input[type=password] {
+      width: 100%; padding: 13px 14px; border: 1.5px solid #1e3a5f; border-radius: 8px;
+      background: #0d1b2a; color: #fff; font-size: 16px;
+    }
+    input:focus { border-color: #4fc3f7; outline: none; }
+    .pin-wrap { position: relative; }
+    .pin-wrap input { padding-right: 44px; }
+    .eye-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 18px; color: #607d8b;
+      line-height: 1; padding: 0;
+    }
+    .btn {
+      display: block; width: 100%; padding: 15px; margin-top: 22px;
+      background: #4fc3f7; color: #0d1b2a; border: none; border-radius: 10px;
+      font-size: 16px; font-weight: bold; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn:hover:not(:disabled) { opacity: 0.9; }
+    .msg-ok  { background: #1b3a2a; border: 1px solid #2d6a4f; color: #74c69d; padding: 12px; border-radius: 8px; font-size: 13px; text-align: center; margin-top: 14px; display: none; }
+    .msg-err { background: #3e1a00; border: 1px solid #c62828; color: #ef9a9a; padding: 12px; border-radius: 8px; font-size: 13px; text-align: center; margin-top: 14px; display: none; }
+
+    /* ── Dashboard screen ──────────────────────────────── */
+    #dashboard-screen { display: none; }
+
+    /* Top nav bar */
+    .topbar {
+      background: #0d1b2a;
+      border-bottom: 1px solid #1e3a5f;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-brand { color: #4fc3f7; font-size: 20px; font-weight: bold; letter-spacing: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-user  { font-size: 13px; color: #607d8b; }
+    .topbar-refresh {
+      background: #1e3a5f; border: none; border-radius: 8px;
+      color: #4fc3f7; padding: 8px 14px; cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .topbar-refresh:hover { background: #1a3354; }
+    .topbar-refresh.spinning { animation: spin 1s linear infinite; }
+    .logout-btn {
+      background: none; border: 1px solid #c62828; border-radius: 8px;
+      color: #ef9a9a; padding: 8px 14px; cursor: pointer; font-size: 13px;
+    }
+    .logout-btn:hover { background: rgba(198,40,40,0.1); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Summary strip */
+    .summary-strip {
+      background: #0d1b2a;
+      border-bottom: 1px solid #1e3a5f;
+      padding: 14px 24px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .sum-item { display: flex; flex-direction: column; align-items: center; }
+    .sum-val  { font-size: 22px; font-weight: bold; color: #4fc3f7; }
+    .sum-lbl  { font-size: 11px; color: #607d8b; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sum-divider { width: 1px; height: 36px; background: #1e3a5f; }
+    .last-sync { font-size: 11px; color: #607d8b; margin-left: auto; }
+
+    /* Property grid */
+    .grid-header {
+      padding: 20px 24px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .grid-title { font-size: 15px; color: #90caf9; font-weight: bold; }
+    .search-input {
+      background: #0d1b2a; border: 1.5px solid #1e3a5f; border-radius: 8px;
+      color: #e0e0e0; padding: 8px 14px; font-size: 13px; width: 200px;
+    }
+    .search-input:focus { border-color: #4fc3f7; outline: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      padding: 0 24px 24px;
+    }
+
+    /* Property card */
+    .prop-card {
+      background: #111d2e;
+      border: 1.5px solid #1e3a5f;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .prop-card:hover { border-color: #4fc3f7; box-shadow: 0 4px 24px rgba(79,195,247,0.08); }
+    .prop-card.booked  { border-color: #2d6a4f; }
+    .prop-card.pending { border-color: #e65100; opacity: 0.75; }
+
+    .card-header {
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .card-address { flex: 1; min-width: 0; }
+    .card-street  { font-size: 15px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-town    { font-size: 12px; color: #607d8b; margin-top: 2px; }
+    .card-deviceid { font-size: 10px; color: #445; margin-top: 4px; font-family: monospace; }
+
+    /* Status badge */
+    .status-badge {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 50px;
+      white-space: nowrap;
+    }
+    .badge-booked   { background: rgba(45,106,79,0.3);  color: #4caf50; border: 1px solid #2d6a4f; }
+    .badge-vacant   { background: rgba(79,195,247,0.1); color: #4fc3f7; border: 1px solid #1e3a5f; }
+    .badge-pending  { background: rgba(230,81,0,0.2);   color: #ff9800; border: 1px solid #e65100; }
+    .badge-suspended{ background: rgba(198,40,40,0.2);  color: #ef9a9a; border: 1px solid #c62828; }
+
+    /* Live readings strip */
+    .live-readings {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      border-top: 1px solid #1e3a5f;
+      border-bottom: 1px solid #1e3a5f;
+    }
+    .reading-cell {
+      padding: 10px 8px;
+      text-align: center;
+      border-right: 1px solid #1e3a5f;
+    }
+    .reading-cell:last-child { border-right: none; }
+    .reading-icon  { font-size: 14px; display: block; margin-bottom: 2px; }
+    .reading-val   { font-size: 17px; font-weight: bold; display: block; line-height: 1.1; }
+    .reading-unit  { font-size: 9px; color: #607d8b; display: inline; }
+    .reading-lbl   { font-size: 9px; color: #607d8b; text-transform: uppercase;
+                     letter-spacing: 0.3px; display: block; margin-top: 2px; }
+    .reading-na    { font-size: 13px; color: #2a3f58; font-weight: bold; }
+
+    /* Sensor pill bar */
+    .sensor-pills {
+      display: flex;
+      gap: 6px;
+      padding: 8px 14px;
+      border-bottom: 1px solid #1e3a5f;
+      flex-wrap: wrap;
+    }
+    .sensor-pill {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 50px;
+      font-weight: bold;
+      letter-spacing: 0.3px;
+    }
+    .pill-on  { background: rgba(79,195,247,0.1); color: #4fc3f7; border: 1px solid rgba(79,195,247,0.25); }
+    .pill-off { background: rgba(30,58,95,0.3);   color: #2a4a6a;  border: 1px solid #1e3a5f; }
+
+    /* Info rows */
+    .card-info {
+      padding: 10px 16px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(30,58,95,0.5);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-key   { color: #607d8b; }
+    .info-val   { color: #e0e0e0; font-weight: bold; text-align: right; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .info-val.green { color: #4caf50; }
+    .info-val.blue  { color: #4fc3f7; }
+    .info-val.orange{ color: #ff9800; }
+    .info-val.red   { color: #ef9a9a; }
+
+    /* Air quality bar */
+    .pm-bar-wrap { display: flex; align-items: center; gap: 6px; }
+    .pm-bar-bg   { flex: 1; height: 4px; background: #1e3a5f; border-radius: 2px; overflow: hidden; }
+    .pm-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+
+    /* Card footer */
+    .card-footer {
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+    }
+    .card-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+    .card-btn-primary { background: #4fc3f7; color: #0d1b2a; }
+    .card-btn-secondary { background: #1e3a5f; color: #90caf9; }
+    .card-btn:hover { opacity: 0.85; }
+
+    /* Empty / loading states */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: #607d8b;
+      padding: 60px 20px;
+      font-size: 15px;
+    }
+
+    /* Dot pulse loader */
+    .dot-loader { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
+    .dot-loader span {
+      width: 8px; height: 8px; border-radius: 50%; background: #4fc3f7;
+      animation: dot-bounce 1.2s ease-in-out infinite;
+    }
+    .dot-loader span:nth-child(2) { animation-delay: 0.2s; }
+    .dot-loader span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot-bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+
+    /* Auto-refresh badge */
+    .refresh-badge {
+      background: rgba(79,195,247,0.08); border: 1px solid #1e3a5f;
+      border-radius: 50px; padding: 4px 12px; font-size: 11px; color: #607d8b;
+    }
+    #refresh-countdown { color: #4fc3f7; }
+
+    /* ── Graph Modal ───────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #0d1b2a;
+      border: 1px solid #1e3a5f;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 780px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .modal-title   { font-size: 17px; font-weight: bold; color: #fff; }
+    .modal-sub     { font-size: 12px; color: #607d8b; margin-top: 2px; }
+    .modal-close   {
+      background: #1e3a5f; border: none; border-radius: 8px;
+      color: #90caf9; width: 32px; height: 32px; cursor: pointer;
+      font-size: 18px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .modal-close:hover { background: #c62828; color: #fff; }
+
+    /* Range tabs */
+    .range-tabs {
+      display: flex; gap: 6px; margin: 16px 0 20px;
+    }
+    .range-tab {
+      padding: 6px 16px; border-radius: 50px; border: 1px solid #1e3a5f;
+      background: none; color: #607d8b; font-size: 12px; cursor: pointer;
+    }
+    .range-tab.active {
+      background: #4fc3f7; color: #0d1b2a; border-color: #4fc3f7; font-weight: bold;
+    }
+
+    /* Chart containers */
+    .chart-section { margin-bottom: 28px; }
+    .chart-title {
+      font-size: 13px; font-weight: bold; color: #90caf9;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .chart-wrap {
+      position: relative;
+      background: #080e18;
+      border: 1px solid #1e3a5f;
+      border-radius: 10px;
+      padding: 14px 14px 8px;
+      height: 160px;
+    }
+    .chart-loading {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #607d8b; font-size: 13px; border-radius: 10px;
+    }
+    .chart-no-data {
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; color: #2a3f58; font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .topbar { padding: 0 14px; }
+      .grid   { padding: 0 12px 20px; }
+      .grid-header, .summary-strip { padding-left: 14px; padding-right: 14px; }
+      .search-input { width: 130px; }
+      .topbar-user  { display: none; }
+      .last-sync    { display: none; }
+      .modal { padding: 16px; }
+      .chart-wrap { height: 130px; }
+    }
+
+    /* ── Peripheral cards ─────────────────────────────── */
+    .peripherals-section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #1e3a5f;
+    }
+    .peripherals-toggle {
+      background: none; border: 1px solid #1e3a5f; color: #607d8b;
+      padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
+      width: 100%;
+    }
+    .peripherals-toggle:hover { border-color: #4fc3f7; color: #4fc3f7; }
+    .peripheral-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid #0d1b2a; font-size: 13px;
+    }
+    .peripheral-item:last-child { border-bottom: none; }
+    .peri-type { color: #4fc3f7; font-weight: bold; font-size: 12px; }
+    .peri-location { color: #90caf9; font-size: 12px; }
+    .peri-value { color: #e0e0e0; font-size: 13px; }
+    .peri-stale { color: #c62828; font-size: 11px; }
+    .peri-fresh { color: #2d6a4f; font-size: 11px; }
+    .upgrade-banner {
+      background: linear-gradient(135deg, #1e3a5f, #0d2137);
+      border: 1px solid #4fc3f7;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 12px;
+    }
+    .upgrade-banner p { color: #90caf9; font-size: 13px; margin-bottom: 10px; }
+    .upgrade-btn {
+      background: #4fc3f7; color: #0d1b2a; border: none; border-radius: 8px;
+      padding: 10px 20px; font-weight: bold; cursor: pointer; font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="brand">TOCATECH</div>
+    <div class="brand-sub">Property Dashboard</div>
+
+    <div id="login-err" class="msg-err"></div>
+
+    <label for="inp-email">Email Address</label>
+    <input type="email" id="inp-email" placeholder="you@example.com" autocomplete="email">
+
+    <label for="inp-pin">Dashboard Password</label>
+    <div class="pin-wrap">
+      <input type="password" id="inp-pin" placeholder="Your dashboard password"
+             maxlength="20" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter') doLogin()">
+      <button class="eye-btn" id="eye" type="button" onclick="togglePin()" title="Show/hide password">👁</button>
+    </div>
+    <div style="font-size:11px;color:#607d8b;margin-top:6px;">
+      This is your <b style="color:#90caf9;">dashboard password</b> (letters, numbers &amp; symbols) — sent when your account was created.
+      It's different from your device's 6-digit device PIN.
+    </div>
+
+    <button class="btn" id="login-btn" onclick="doLogin()">Sign In</button>
+
+    <div style="text-align:center;margin-top:18px;font-size:12px;color:#607d8b;">
+      Managing a single device? <a href="settings.html" style="color:#4fc3f7;">Open Settings →</a>
+    </div>
+    <div style="text-align:center;margin-top:8px;font-size:12px;color:#607d8b;">
+      Forgot your password? <a href="#" style="color:#4fc3f7;" onclick="sendLoginForgot(); return false;">Send reset link</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     DASHBOARD SCREEN
+════════════════════════════════════════════════════════════ -->
+<div id="dashboard-screen">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-brand">TOCATECH</div>
+    <div class="topbar-right">
+      <!-- Tier badge removed from topbar — shown per device card instead -->
+      <span class="topbar-user" id="topbar-email"></span>
+      <div class="refresh-badge">
+        Auto-refresh in <span id="refresh-countdown">60</span>s
+      </div>
+      <button class="topbar-refresh" onclick="loadDashboard(true)" id="refresh-btn">⟳ Refresh</button>
+      <button class="topbar-refresh" onclick="openChangePinModal()" style="background:#1a3a54;">🔑 Change Password</button>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Summary strip -->
+  <div class="summary-strip">
+    <div class="sum-item">
+      <span class="sum-val" id="sum-total">—</span>
+      <span class="sum-lbl">Properties</span>
+    </div>
+    <div class="sum-divider"></div>
+    <div class="sum-item">
+      <span class="sum-val" id="sum-booked" style="color:#4caf50;">—</span>
+      <span class="sum-lbl">Booked</span>
+    </div>
+    <div class="sum-divider"></div>
+    <div class="sum-item">
+      <span class="sum-val" id="sum-vacant">—</span>
+      <span class="sum-lbl">Vacant</span>
+    </div>
+    <div class="sum-divider"></div>
+    <div class="sum-item">
+      <span class="sum-val" id="sum-alerts" style="color:#ff9800;">—</span>
+      <span class="sum-lbl">Alerts (24h)</span>
+    </div>
+    <!-- Plan removed from summary strip — each device card shows its own tier -->
+    <div class="last-sync" id="last-sync-time"></div>
+  </div>
+
+  <!-- Grid header -->
+  <div class="grid-header">
+    <span class="grid-title">Your Properties</span>
+    <input class="search-input" type="text" id="search-input"
+           placeholder="🔍 Search property..."
+           oninput="filterCards()">
+  </div>
+
+  <!-- Cards grid -->
+  <div class="grid" id="cards-grid">
+    <div class="empty-state">
+      Loading your properties…
+      <div class="dot-loader"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CHANGE DASHBOARD PIN MODAL
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="pin-modal" onclick="closePinModal(event)">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">🔑 Change Dashboard Password</div>
+        <div class="modal-sub">10–20 characters · uppercase · lowercase · number · symbol</div>
+      </div>
+      <button class="modal-close" onclick="closePinModalDirect()">✕</button>
+    </div>
+
+    <div id="pm-ok"  style="background:#1b3a2a;border:1px solid #2d6a4f;color:#74c69d;padding:12px;border-radius:8px;font-size:13px;text-align:center;margin:14px 0;display:none;"></div>
+    <div id="pm-err" style="background:#3e1a00;border:1px solid #c62828;color:#ef9a9a;padding:12px;border-radius:8px;font-size:13px;text-align:center;margin:14px 0;display:none;"></div>
+
+    <label style="font-size:13px;color:#90caf9;display:block;margin:14px 0 5px;">Current Password</label>
+    <div style="position:relative;">
+      <input type="password" id="pm-current" placeholder="Your current dashboard password" maxlength="20"
+        style="width:100%;padding:13px 44px 13px 14px;border:1.5px solid #1e3a5f;border-radius:8px;background:#0d1b2a;color:#fff;font-size:15px;box-sizing:border-box;">
+      <button type="button" onclick="pmToggle('pm-current','pm-e1')" id="pm-e1"
+        style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#607d8b;padding:0;">👁</button>
+    </div>
+
+    <label style="font-size:13px;color:#90caf9;display:block;margin:14px 0 5px;">New Password</label>
+    <div style="position:relative;">
+      <input type="password" id="pm-new" placeholder="10–20 chars, mixed types" maxlength="20"
+        style="width:100%;padding:13px 44px 13px 14px;border:1.5px solid #1e3a5f;border-radius:8px;background:#0d1b2a;color:#fff;font-size:15px;box-sizing:border-box;"
+        oninput="checkPinStrength(this.value)">
+      <button type="button" onclick="pmToggle('pm-new','pm-e2')" id="pm-e2"
+        style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#607d8b;padding:0;">👁</button>
+    </div>
+
+    <!-- Strength indicators -->
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;" id="pm-strength-pills">
+      <span id="ps-len" style="font-size:10px;padding:2px 8px;border-radius:50px;background:#1e3a5f;color:#607d8b;">10–20 chars</span>
+      <span id="ps-up"  style="font-size:10px;padding:2px 8px;border-radius:50px;background:#1e3a5f;color:#607d8b;">Uppercase</span>
+      <span id="ps-lo"  style="font-size:10px;padding:2px 8px;border-radius:50px;background:#1e3a5f;color:#607d8b;">Lowercase</span>
+      <span id="ps-num" style="font-size:10px;padding:2px 8px;border-radius:50px;background:#1e3a5f;color:#607d8b;">Number</span>
+      <span id="ps-sym" style="font-size:10px;padding:2px 8px;border-radius:50px;background:#1e3a5f;color:#607d8b;">Symbol</span>
+    </div>
+
+    <label style="font-size:13px;color:#90caf9;display:block;margin:14px 0 5px;">Confirm New Password</label>
+    <input type="password" id="pm-confirm" placeholder="Repeat new password" maxlength="20"
+      style="width:100%;padding:13px 14px;border:1.5px solid #1e3a5f;border-radius:8px;background:#0d1b2a;color:#fff;font-size:15px;box-sizing:border-box;">
+
+    <button onclick="submitChangeDashPin()"
+      style="display:block;width:100%;padding:15px;margin-top:18px;background:#4fc3f7;color:#0d1b2a;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;">
+      Update Dashboard Password
+    </button>
+    <button onclick="forgotDashPin()"
+      style="display:block;width:100%;padding:12px;margin-top:10px;background:none;border:1px solid #1e3a5f;border-radius:10px;font-size:13px;color:#607d8b;cursor:pointer;">
+      Forgot password? Send reset link to my email
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     GRAPH MODAL
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="graph-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">Property Graphs</div>
+        <div class="modal-sub" id="modal-sub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+
+    <!-- Range selector -->
+    <div class="range-tabs">
+      <button class="range-tab active" onclick="setRange(1,  this)">24h</button>
+      <button class="range-tab"        onclick="setRange(3,  this)">3 days</button>
+      <button class="range-tab"        onclick="setRange(7,  this)">7 days</button>
+      <button class="range-tab"        onclick="setRange(14, this)">14 days</button>
+      <button class="range-tab"        onclick="setRange(30, this)">30 days</button>
+    </div>
+
+    <!-- Temperature chart -->
+    <div class="chart-section">
+      <div class="chart-title">🌡 Temperature (°C)</div>
+      <div class="chart-wrap">
+        <div class="chart-loading" id="chart-temp-loading">Loading…</div>
+        <canvas id="chart-temp" style="display:none;"></canvas>
+      </div>
+    </div>
+
+    <!-- Humidity chart -->
+    <div class="chart-section">
+      <div class="chart-title">💧 Humidity (%)</div>
+      <div class="chart-wrap">
+        <div class="chart-loading" id="chart-humid-loading">Loading…</div>
+        <canvas id="chart-humid" style="display:none;"></canvas>
+      </div>
+    </div>
+
+    <!-- PM2.5 chart -->
+    <div class="chart-section">
+      <div class="chart-title">💨 Air Quality — PM2.5 (µg/m³)</div>
+      <div class="chart-wrap">
+        <div class="chart-loading" id="chart-pm-loading">Loading…</div>
+        <canvas id="chart-pm" style="display:none;"></canvas>
+      </div>
+    </div>
+
+    <!-- Noise chart -->
+    <div class="chart-section" style="margin-bottom:4px;">
+      <div class="chart-title">🔊 Noise Level (%)</div>
+      <div class="chart-wrap">
+        <div class="chart-loading" id="chart-noise-loading">Loading…</div>
+        <canvas id="chart-noise" style="display:none;"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ══════════════════════════════════════════════════════
+  // CONFIG
+  // ══════════════════════════════════════════════════════
+  const SCRIPT_URL = "https://us-central1-tocatech-e817d.cloudfunctions.net/api";
+  const REFRESH_INTERVAL = 60; // seconds
+
+  let allDevices   = [];
+  let userEmail    = "";
+  let userPin      = "";
+  let refreshTimer = null;
+  let countdownVal = REFRESH_INTERVAL;
+
+  // ══════════════════════════════════════════════════════
+  // AUTH
+  // ══════════════════════════════════════════════════════
+  function togglePin() {
+    const inp = document.getElementById("inp-pin");
+    const eye = document.getElementById("eye");
+    inp.type = inp.type === "password" ? "text" : "password";
+    eye.textContent = inp.type === "password" ? "👁" : "🙈";
+  }
+
+  async function doLogin() {
+    const email = document.getElementById("inp-email").value.trim().toLowerCase();
+    const pin   = document.getElementById("inp-pin").value.trim();
+    const btn   = document.getElementById("login-btn");
+    const err   = document.getElementById("login-err");
+
+    err.style.display = "none";
+    if (!email) { showErr(err, "Please enter your email address."); return; }
+    if (!pin)   { showErr(err, "Please enter your PIN."); return; }
+
+    btn.textContent = "Signing in…";
+    btn.disabled = true;
+
+    try {
+      const url = `${SCRIPT_URL}?action=getByEmail&email=${encodeURIComponent(email)}&pin=${encodeURIComponent(pin)}`;
+      const r   = await fetch(url);
+      const d   = await r.json();
+
+      if (!d.ok) {
+        showErr(err, d.error || "Login failed. Please try again.");
+        btn.textContent = "Sign In";
+        btn.disabled = false;
+        return;
+      }
+
+      // Success
+      userEmail  = email;
+      userPin    = pin;
+      allDevices = d.devices || [];
+
+      sessionStorage.setItem("tc_email", email);
+      sessionStorage.setItem("tc_pin",   pin);
+
+      showDashboard();
+    } catch(e) {
+      showErr(err, "Connection error. Please check your internet and try again.");
+      btn.textContent = "Sign In";
+      btn.disabled = false;
+    }
+  }
+
+  async function sendLoginForgot() {
+    const email = document.getElementById("inp-email").value.trim().toLowerCase();
+    const err   = document.getElementById("login-err");
+    if (!email) { showErr(err, "Enter your email address first, then click the reset link."); return; }
+    try {
+      await fetch(`${SCRIPT_URL}?action=forgotPin&type=email&email=${encodeURIComponent(email)}`);
+      showErr(err, "📧 If that email has an account, a reset link has been sent. Check your inbox.");
+      err.style.background = "#1b3a2a";
+      err.style.borderColor = "#2d6a4f";
+      err.style.color = "#74c69d";
+    } catch(e) { showErr(err, "Connection error. Please try again."); }
+  }
+
+  async function ackAlert(devID) {
+    const btn = document.getElementById("ack-" + devID);
+    if (!btn) return;
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    try {
+      const url = `${SCRIPT_URL}?action=acknowledgeAlert`
+        + `&deviceID=${devID}`
+        + `&email=${encodeURIComponent(userEmail)}`
+        + `&pin=${encodeURIComponent(userPin)}`;
+      const r = await fetch(url);
+      const d = await r.json();
+      if (d.ok) {
+        btn.outerHTML = '<span style="color:#74c69d;font-size:11px;">✓ Acknowledged — just now</span>';
+      } else {
+        btn.textContent = "✓ Acknowledge alert";
+        btn.disabled = false;
+        alert(d.error || "Failed to acknowledge.");
+      }
+    } catch(e) {
+      btn.textContent = "✓ Acknowledge alert";
+      btn.disabled = false;
+      alert("Connection error. Please try again.");
+    }
+  }
+
+function doLogout() {
+    sessionStorage.removeItem("tc_email");
+    sessionStorage.removeItem("tc_pin");
+    clearInterval(refreshTimer);
+    document.getElementById("dashboard-screen").style.display = "none";
+    document.getElementById("login-screen").style.display     = "flex";
+    document.getElementById("login-btn").textContent = "Sign In";
+    document.getElementById("login-btn").disabled    = false;
+    document.getElementById("inp-pin").value         = "";
+  }
+
+  function showErr(el, msg) {
+    el.textContent    = msg;
+    el.style.display  = "block";
+  }
+
+  // ══════════════════════════════════════════════════════
+  // DASHBOARD INIT
+  // ══════════════════════════════════════════════════════
+  function showDashboard() {
+    document.getElementById("login-screen").style.display     = "none";
+    document.getElementById("dashboard-screen").style.display = "block";
+    document.getElementById("topbar-email").textContent       = userEmail;
+    renderCards(allDevices);
+    updateSummary(allDevices);
+    startAutoRefresh();
+  }
+
+  async function loadDashboard(manual = false) {
+    if (manual) {
+      const btn = document.getElementById("refresh-btn");
+      btn.textContent = "⟳";
+      btn.style.animation = "spin 1s linear infinite";
+    }
+    try {
+      const url = `${SCRIPT_URL}?action=getByEmail&email=${encodeURIComponent(userEmail)}&pin=${encodeURIComponent(userPin)}`;
+      const r   = await fetch(url);
+      const d   = await r.json();
+      if (d.ok) {
+        allDevices = d.devices || [];
+        renderCards(allDevices);
+        updateSummary(allDevices);
+        filterCards(); // re-apply search
+        document.getElementById("last-sync-time").textContent =
+          "Last updated: " + new Date().toLocaleTimeString("en-ZA");
+      }
+    } catch(e) { /* keep showing last data */ }
+    if (manual) {
+      const btn = document.getElementById("refresh-btn");
+      btn.textContent = "⟳ Refresh";
+      btn.style.animation = "";
+    }
+  }
+
+  function startAutoRefresh() {
+    clearInterval(refreshTimer);
+    countdownVal = REFRESH_INTERVAL;
+    document.getElementById("refresh-countdown").textContent = countdownVal;
+    refreshTimer = setInterval(() => {
+      countdownVal--;
+      document.getElementById("refresh-countdown").textContent = countdownVal;
+      if (countdownVal <= 0) {
+        countdownVal = REFRESH_INTERVAL;
+        loadDashboard();
+      }
+    }, 1000);
+    document.getElementById("last-sync-time").textContent =
+      "Last updated: " + new Date().toLocaleTimeString("en-ZA");
+  }
+
+  // ══════════════════════════════════════════════════════
+  // SUMMARY STRIP
+  // ══════════════════════════════════════════════════════
+  function updateSummary(devices) {
+    const booked  = devices.filter(d => d.calendarStatus === "BOOKED" && d.status === "ACTIVE").length;
+    const vacant  = devices.filter(d => d.calendarStatus !== "BOOKED" && d.status === "ACTIVE").length;
+    const now24   = Date.now() - 86400000;
+    const alerts  = devices.filter(d => d.lastAlert && new Date(d.lastAlert) > now24).length;
+
+    document.getElementById("sum-total").textContent  = devices.length;
+    document.getElementById("sum-booked").textContent = booked;
+    document.getElementById("sum-vacant").textContent = vacant;
+    document.getElementById("sum-alerts").textContent = alerts;
+  }
+
+  // ══════════════════════════════════════════════════════
+  // CARD RENDER
+  // ══════════════════════════════════════════════════════
+  function renderCards(devices) {
+    const grid = document.getElementById("cards-grid");
+    if (!devices.length) {
+      grid.innerHTML = '<div class="empty-state">No properties found for your account.</div>';
+      return;
+    }
+    grid.innerHTML = devices.map(d => buildCard(d)).join("");
+  }
+
+  function filterCards() {
+    const q = document.getElementById("search-input").value.toLowerCase();
+    if (!q) { renderCards(allDevices); return; }
+    const filtered = allDevices.filter(d =>
+      (d.address     || "").toLowerCase().includes(q) ||
+      (d.town        || "").toLowerCase().includes(q) ||
+      (d.deviceID    || "").toLowerCase().includes(q)
+    );
+    renderCards(filtered);
+  }
+
+  function renderPeripherals(dev) {
+    if (!dev.peripherals || dev.peripherals.length === 0) return '';
+
+    let html = '<div class="peripherals-section">';
+    html += '<button class="peripherals-toggle" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === \'none\' ? \'block\' : \'none\'; this.textContent = this.nextElementSibling.style.display === \'none\' ? \'Show ' + dev.peripherals.length + ' Peripheral(s)\' : \'Hide Peripherals\'">';
+    html += 'Show ' + dev.peripherals.length + ' Peripheral(s)';
+    html += '</button>';
+    html += '<div style="display:none;margin-top:10px;">';
+
+    for (const p of dev.peripherals) {
+      const typeName = p.type.replace(/^Espnow/i, '').replace(/([A-Z])/g, ' $1').trim();
+      const lastSeen = p.lastSeen ? new Date(p.lastSeen) : null;
+      const agoMs = lastSeen ? Date.now() - lastSeen.getTime() : Infinity;
+      const agoMin = Math.floor(agoMs / 60000);
+      const isStale = agoMin > 15;
+      const agoStr = agoMin < 1 ? 'just now' : agoMin < 60 ? agoMin + 'm ago' : Math.floor(agoMin / 60) + 'h ago';
+
+      let valueStr = '';
+      if (p.type.indexOf('Htemp') >= 0) {
+        valueStr = (p.lastValue.value1 || 0).toFixed(1) + '\u00b0C / ' + (p.lastValue.value2 || 0).toFixed(0) + '%';
+      } else if (p.type.indexOf('Window') >= 0 || p.type.indexOf('Door') >= 0) {
+        valueStr = p.lastValue.value1 === 1 ? 'Closed' : 'Open';
+      } else if (p.type.indexOf('Motion') >= 0) {
+        valueStr = p.lastValue.value1 === 1 ? 'Motion!' : 'Clear';
+      } else if (p.type.indexOf('Sound') >= 0 || p.type.indexOf('Mic') >= 0) {
+        valueStr = 'Level: ' + (p.lastValue.value1 || 0).toFixed(0);
+      } else if (p.type.indexOf('Smoke') >= 0) {
+        valueStr = p.lastValue.value1 === 1 ? 'SMOKE!' : 'Clear';
+      } else if (p.type.indexOf('Energy') >= 0) {
+        valueStr = 'Reading: ' + (p.lastValue.value1 || 0).toFixed(0);
+      } else if (p.type.indexOf('Weight') >= 0) {
+        valueStr = (p.lastValue.value1 || 0).toFixed(0) + 'g';
+      } else if (p.type.indexOf('Camera') >= 0) {
+        valueStr = p.lastValue.value1 === 1 ? 'Online' : 'Offline';
+      } else {
+        valueStr = String(p.lastValue.value1 || 0);
+      }
+
+      // Battery indicator
+      const batteryV = (p.lastValue && p.lastValue.battery != null) ? parseFloat(p.lastValue.battery)
+                     : (p.battery != null) ? parseFloat(p.battery) : null;
+      let batteryHtml = '';
+      if (batteryV !== null && !isNaN(batteryV)) {
+        const bPct = Math.max(0, Math.min(100, Math.round((batteryV - 3.0) / (4.2 - 3.0) * 100)));
+        const bColor = bPct > 50 ? '#2d6a4f' : bPct > 20 ? '#e65100' : '#c62828';
+        const lowWarn = batteryV < 3.3 ? ' \u26A0\uFE0F LOW' : '';
+        batteryHtml = '<div style="font-size:11px;color:' + bColor + ';margin-top:2px;">\uD83D\uDD0B ' + batteryV.toFixed(2) + 'V (' + bPct + '%)' + lowWarn + '</div>';
+      }
+
+      html += '<div class="peripheral-item">';
+      html += '  <div>';
+      html += '    <div class="peri-type">' + typeName + '</div>';
+      html += '    <div class="peri-location">' + (p.location || 'Unassigned') + '</div>';
+      html += batteryHtml;
+      html += '  </div>';
+      html += '  <div style="text-align:right">';
+      html += '    <div class="peri-value">' + valueStr + '</div>';
+      html += '    <div class="' + (isStale ? 'peri-stale' : 'peri-fresh') + '">' + (lastSeen ? agoStr : 'never') + '</div>';
+      html += '  </div>';
+      html += '</div>';
+    }
+
+    html += '</div></div>';
+    return html;
+  }
+
+  function buildCard(d) {
+    // Status badge
+    const isBooked  = d.calendarStatus === "BOOKED";
+    const isPending = d.status === "PENDING";
+    const isSuspend = d.status === "SUSPENDED";
+    const cardClass = isBooked ? "booked" : isPending ? "pending" : "";
+
+    let badge = "";
+    if (isSuspend)      badge = '<span class="status-badge badge-suspended">SUSPENDED</span>';
+    else if (isPending) badge = '<span class="status-badge badge-pending">PENDING</span>';
+    else if (isBooked)  badge = '<span class="status-badge badge-booked">🏠 BOOKED</span>';
+    else                badge = '<span class="status-badge badge-vacant">🔓 VACANT</span>';
+
+    // Subscription tier badge (per device — each device has its own plan)
+    const tier = d.subscriptionTier || "standard";
+    const tierBadge = `<span style="background:${tier === 'premium' ? '#2d6a4f' : '#1e3a5f'};color:${tier === 'premium' ? '#69f0ae' : '#4fc3f7'};padding:2px 8px;border-radius:12px;font-size:10px;font-weight:bold;text-transform:uppercase;margin-left:6px;">${tier}</span>`;
+
+    // Address
+    const street = [d.streetNo, d.streetName].filter(Boolean).join(" ") || "Unnamed Property";
+    const town   = [d.town, d.province].filter(Boolean).join(", ") || "";
+
+    // Sensor enabled flags
+    const motOn  = d.motionEnabled !== "NO";
+    const smoOn  = d.smokeEnabled  !== "NO";
+    const sndOn  = d.soundEnabled  !== "NO";
+    const calOn  = d.hasCalendar;
+
+    // Live readings
+    const tempVal  = d.lastTemp     != null ? parseFloat(d.lastTemp).toFixed(1)   : null;
+    const humVal   = d.lastHumidity != null ? parseFloat(d.lastHumidity).toFixed(0) : null;
+    const pm25Val  = d.lastPM25     != null ? parseFloat(d.lastPM25).toFixed(0)   : null;
+
+    // PM2.5 colour coding
+    const pm25Num  = pm25Val !== null ? parseFloat(pm25Val) : null;
+    const pm25Color = pm25Num === null ? "#607d8b"
+                    : pm25Num < 35  ? "#4caf50"
+                    : pm25Num < 75  ? "#ff9800"
+                    : "#ef5350";
+
+    // Temperature colour coding
+    const tempNum  = tempVal !== null ? parseFloat(tempVal) : null;
+    const tempColor = tempNum === null ? "#607d8b"
+                    : tempNum > 35  ? "#ef5350"
+                    : tempNum < 10  ? "#4fc3f7"
+                    : "#e0e0e0";
+
+    // Humidity colour coding
+    const humNum   = humVal !== null ? parseInt(humVal) : null;
+    const humColor = humNum === null ? "#607d8b"
+                   : humNum > 75   ? "#ff9800"
+                   : "#e0e0e0";
+
+    // Env update time tooltip
+    const envAge = d.lastEnvUpdate
+      ? "Updated " + timeAgo(d.lastEnvUpdate)
+      : "No data yet — updates every 10 min";
+
+    // Last alert — show type + acknowledge button
+    const lastAlert = d.lastAlert ? timeAgo(d.lastAlert) : "No alerts";
+    const alertColor = d.lastAlert && (Date.now() - new Date(d.lastAlert)) < 86400000
+      ? "orange" : "";
+    const alertTypeLabel = d.lastAlertType || "";
+    const alertAcked = d.alertAcknowledged === true;
+
+    // Calendar info row
+    let calRow = "";
+    if (d.hasCalendar) {
+      if (isBooked) {
+        const endDate = d.currentBookingEnd ? fmtDate(d.currentBookingEnd) : "";
+        calRow = `<div class="info-row">
+          <span class="info-key">Booked via</span>
+          <span class="info-val green">${esc(d.bookedBy || "Calendar")}${endDate ? " · until " + endDate : ""}</span>
+        </div>`;
+      } else {
+        const nextBook = d.nextBookingStart ? fmtDate(d.nextBookingStart) : "None upcoming";
+        calRow = `<div class="info-row">
+          <span class="info-key">Next booking</span>
+          <span class="info-val blue">${nextBook}</span>
+        </div>`;
+      }
+    }
+
+    // PM2.5 now shown in live readings strip — env update age shown in info row
+    const envUpdateRow = d.lastEnvUpdate
+      ? `<div class="info-row">
+          <span class="info-key">Readings updated</span>
+          <span class="info-val" style="color:#607d8b;">${timeAgo(d.lastEnvUpdate)}</span>
+        </div>`
+      : `<div class="info-row">
+          <span class="info-key">Readings</span>
+          <span class="info-val" style="color:#2a3f58;">Waiting for first update…</span>
+        </div>`;
+
+    // Status row
+    let statusRow = "";
+    if (isSuspend) {
+      statusRow = `<div class="info-row">
+        <span class="info-key">Status</span>
+        <span class="info-val red">Suspended</span>
+      </div>`;
+    } else if (isPending) {
+      statusRow = `<div class="info-row">
+        <span class="info-key">Status</span>
+        <span class="info-val orange">Awaiting activation</span>
+      </div>`;
+    }
+
+    const settingsUrl = `settings.html?deviceID=${encodeURIComponent(d.deviceID)}`;
+
+    return `
+    <div class="prop-card ${cardClass}">
+      <div class="card-header">
+        <div class="card-address">
+          <div class="card-street">${esc(street)}${tierBadge}</div>
+          <div class="card-town">${esc(town)}</div>
+          <div class="card-deviceid">${esc(d.deviceID)}</div>
+        </div>
+        ${badge}
+      </div>
+
+      <!-- Live sensor readings -->
+      <div class="live-readings" title="${envAge}">
+        <div class="reading-cell">
+          <span class="reading-icon">🌡</span>
+          ${tempVal !== null
+            ? `<span class="reading-val" style="color:${tempColor}">${tempVal}<span class="reading-unit">°C</span></span>`
+            : `<span class="reading-val reading-na">—</span>`}
+          <span class="reading-lbl">Temp</span>
+        </div>
+        <div class="reading-cell">
+          <span class="reading-icon">💧</span>
+          ${humVal !== null
+            ? `<span class="reading-val" style="color:${humColor}">${humVal}<span class="reading-unit">%</span></span>`
+            : `<span class="reading-val reading-na">—</span>`}
+          <span class="reading-lbl">Humidity</span>
+        </div>
+        <div class="reading-cell">
+          <span class="reading-icon">💨</span>
+          ${pm25Val !== null
+            ? `<span class="reading-val" style="color:${pm25Color}">${pm25Val}<span class="reading-unit"> µg</span></span>`
+            : `<span class="reading-val reading-na">—</span>`}
+          <span class="reading-lbl">PM2.5</span>
+        </div>
+        <div class="reading-cell">
+          <span class="reading-icon">🔊</span>
+          <span class="reading-val reading-na">—</span>
+          <span class="reading-lbl">Noise dB</span>
+        </div>
+      </div>
+
+      <!-- Sensor on/off pills -->
+      <div class="sensor-pills">
+        <span class="sensor-pill ${motOn ? "pill-on" : "pill-off"}" title="Motion ${motOn ? "ON" : "OFF"}">🚶 Motion</span>
+        <span class="sensor-pill ${smoOn ? "pill-on" : "pill-off"}" title="Smoke ${smoOn ? "ON" : "OFF"}">💨 Smoke</span>
+        <span class="sensor-pill ${sndOn ? "pill-on" : "pill-off"}" title="Sound ${sndOn ? "ON" : "OFF"}">🔊 Sound</span>
+        <span class="sensor-pill ${calOn ? "pill-on" : "pill-off"}" title="Calendar ${calOn ? "connected" : "not connected"}">📅 ${calOn ? d.calendarCount + " Calendar" + (d.calendarCount > 1 ? "s" : "") : "No Calendar"}</span>
+      </div>
+
+      <!-- Info rows -->
+      <div class="card-info">
+        ${statusRow}
+        <div class="info-row">
+          <span class="info-key">Last alert</span>
+          <span class="info-val ${alertColor}">${lastAlert}${alertTypeLabel ? ' — ' + esc(alertTypeLabel) : ''}</span>
+        </div>
+        ${d.lastAlert && !alertAcked ? `<div style="text-align:right;margin:-4px 0 6px;">
+          <button onclick="ackAlert('${d.deviceID}')" id="ack-${d.deviceID}"
+            style="background:#1a3a54;color:#4fc3f7;border:1px solid #1e3a5f;border-radius:6px;padding:6px 14px;font-size:11px;cursor:pointer;">
+            ✓ Acknowledge alert</button>
+        </div>` : ''}
+        ${d.lastAlert && alertAcked ? `<div style="text-align:right;margin:-4px 0 6px;">
+          <span style="color:#74c69d;font-size:11px;">✓ Acknowledged${d.alertAcknowledgedAt ? ' — ' + timeAgo(d.alertAcknowledgedAt) : ''}</span>
+        </div>` : ''}
+        ${calRow}
+        ${envUpdateRow}
+      </div>
+
+      ${renderPeripherals(d)}
+
+      <!-- Footer actions -->
+      <div class="card-footer">
+        <a class="card-btn card-btn-primary" href="${settingsUrl}" style="flex:1.2;">⚙ Settings</a>
+        <button class="card-btn card-btn-secondary" style="flex:1;" onclick="openGraphs('${esc(d.deviceID)}', '${esc(street)}', '${esc(town)}')">📊 Graphs</button>
+        <button class="card-btn card-btn-secondary" style="flex:0 0 auto;padding:10px 12px;" onclick="syncOne('${esc(d.deviceID)}', this)" title="Sync Calendar">⟳</button>
+      </div>
+    </div>`;
+  }
+
+  // ══════════════════════════════════════════════════════
+  // PER-CARD CALENDAR SYNC
+  // ══════════════════════════════════════════════════════
+  async function syncOne(deviceID, btn) {
+    btn.textContent = "Syncing…";
+    btn.disabled = true;
+    try {
+      const url = `${SCRIPT_URL}?action=syncCalendar&deviceID=${encodeURIComponent(deviceID)}&pin=${encodeURIComponent(userPin)}`;
+      const r   = await fetch(url);
+      const d   = await r.json();
+      if (d.ok) {
+        // Update local data and re-render that card
+        const idx = allDevices.findIndex(x => x.deviceID === deviceID);
+        if (idx !== -1) {
+          allDevices[idx].calendarStatus    = d.status;
+          allDevices[idx].bookedBy          = d.bookedBy          || null;
+          allDevices[idx].currentBookingEnd = d.currentBookingEnd || null;
+          allDevices[idx].nextBookingStart  = d.nextBookingStart  || null;
+        }
+        updateSummary(allDevices);
+        filterCards();
+        btn.textContent = "✓ Done";
+      } else {
+        btn.textContent = "⚠ Error";
+      }
+    } catch(e) {
+      btn.textContent = "⚠ Error";
+    }
+    setTimeout(() => {
+      btn.textContent = "⟳ Sync Cal";
+      btn.disabled    = false;
+    }, 2500);
+  }
+
+  // ══════════════════════════════════════════════════════
+  // HELPERS
+  // ══════════════════════════════════════════════════════
+  function esc(s) {
+    return String(s || "")
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;");
+  }
+
+  function fmtDate(iso) {
+    try {
+      return new Date(iso).toLocaleDateString("en-ZA", { day:"numeric", month:"short", year:"numeric" });
+    } catch(e) { return iso; }
+  }
+
+  function timeAgo(iso) {
+    try {
+      const diff = Date.now() - new Date(iso);
+      const m    = Math.floor(diff / 60000);
+      const h    = Math.floor(diff / 3600000);
+      const day  = Math.floor(diff / 86400000);
+      if (m < 2)   return "Just now";
+      if (h < 1)   return m + "m ago";
+      if (h < 24)  return h + "h ago";
+      if (day < 7) return day + "d ago";
+      return fmtDate(iso);
+    } catch(e) { return ""; }
+  }
+
+  // ══════════════════════════════════════════════════════
+  // CHANGE DASHBOARD PIN MODAL
+  // ══════════════════════════════════════════════════════
+  function openChangePinModal() {
+    document.getElementById("pin-modal").classList.add("open");
+    document.body.style.overflow = "hidden";
+    document.getElementById("pm-ok").style.display  = "none";
+    document.getElementById("pm-err").style.display = "none";
+    document.getElementById("pm-current").value = "";
+    document.getElementById("pm-new").value     = "";
+    document.getElementById("pm-confirm").value = "";
+    checkPinStrength("");
+  }
+  function closePinModalDirect() {
+    document.getElementById("pin-modal").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  function closePinModal(e) {
+    if (e.target === document.getElementById("pin-modal")) closePinModalDirect();
+  }
+  function pmToggle(id, eyeId) {
+    const inp = document.getElementById(id);
+    const eye = document.getElementById(eyeId);
+    inp.type = inp.type === "password" ? "text" : "password";
+    eye.textContent = inp.type === "password" ? "👁" : "🙈";
+  }
+  function checkPinStrength(val) {
+    const set = (id, pass) => {
+      const el = document.getElementById(id);
+      el.style.background = pass ? "rgba(76,175,80,0.2)" : "#1e3a5f";
+      el.style.color      = pass ? "#4caf50"             : "#607d8b";
+    };
+    set("ps-len", val.length >= 10 && val.length <= 20);
+    set("ps-up",  /[A-Z]/.test(val));
+    set("ps-lo",  /[a-z]/.test(val));
+    set("ps-num", /[0-9]/.test(val));
+    set("ps-sym", /[^A-Za-z0-9]/.test(val));
+  }
+  async function submitChangeDashPin() {
+    const ok  = document.getElementById("pm-ok");
+    const err = document.getElementById("pm-err");
+    ok.style.display = err.style.display = "none";
+
+    const current = document.getElementById("pm-current").value.trim();
+    const newPin  = document.getElementById("pm-new").value.trim();
+    const confirm = document.getElementById("pm-confirm").value.trim();
+
+    if (!current || !newPin || !confirm) {
+      err.textContent = "Please fill in all fields."; err.style.display = "block"; return;
+    }
+    if (newPin !== confirm) {
+      err.textContent = "Passwords do not match."; err.style.display = "block"; return;
+    }
+    if (newPin.length < 10 || newPin.length > 20) {
+      err.textContent = "New password must be 10–20 characters."; err.style.display = "block"; return;
+    }
+    if (!/[A-Z]/.test(newPin) || !/[a-z]/.test(newPin) || !/[0-9]/.test(newPin) || !/[^A-Za-z0-9]/.test(newPin)) {
+      err.textContent = "Password must include uppercase, lowercase, a number and a symbol.";
+      err.style.display = "block"; return;
+    }
+
+    try {
+      const url = `${SCRIPT_URL}?action=changeEmailPin`
+        + `&email=${encodeURIComponent(userEmail)}`
+        + `&currentPin=${encodeURIComponent(current)}`
+        + `&newPin=${encodeURIComponent(newPin)}`
+        + `&confirmPin=${encodeURIComponent(confirm)}`;
+      const r = await fetch(url);
+      const d = await r.json();
+      if (d.ok) {
+        userPin = newPin;
+        sessionStorage.setItem("tc_pin", newPin);
+        ok.textContent = "✅ Dashboard password updated. Use your new password next time you log in.";
+        ok.style.display = "block";
+        document.getElementById("pm-current").value = "";
+        document.getElementById("pm-new").value     = "";
+        document.getElementById("pm-confirm").value = "";
+      } else {
+        err.textContent = d.error || "Failed to update password.";
+        err.style.display = "block";
+      }
+    } catch(e) {
+      err.textContent = "Connection error. Please try again.";
+      err.style.display = "block";
+    }
+  }
+  async function forgotDashPin() {
+    const ok  = document.getElementById("pm-ok");
+    const err = document.getElementById("pm-err");
+    ok.style.display = err.style.display = "none";
+    if (!confirm("Send a password reset link to " + userEmail + "?")) return;
+    try {
+      const r = await fetch(`${SCRIPT_URL}?action=forgotPin&type=email&email=${encodeURIComponent(userEmail)}`);
+      const d = await r.json();
+      ok.textContent = "📧 Reset link sent to " + userEmail + ". Check your inbox.";
+      ok.style.display = "block";
+    } catch(e) {
+      err.textContent = "Connection error. Please try again.";
+      err.style.display = "block";
+    }
+  }
+
+  // Handle reset token in URL (dashboard PIN reset from email link)
+  (function checkDashResetToken() {
+    const params = new URLSearchParams(window.location.search);
+    const token  = params.get("resetToken");
+    if (!token) return;
+
+    // Hide login, show reset form
+    document.getElementById("login-screen").innerHTML =
+      '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">'
+    + '<div style="background:#1a2a3a;border-radius:16px;padding:36px 28px;width:100%;max-width:420px;">'
+    + '<div style="color:#4fc3f7;font-size:22px;font-weight:bold;text-align:center;margin-bottom:6px;">TOCATECH</div>'
+    + '<div style="color:#607d8b;font-size:14px;text-align:center;margin-bottom:24px;">Reset Dashboard Password</div>'
+    + '<div id="rt-ok"  style="background:#1b3a2a;border:1px solid #2d6a4f;color:#74c69d;padding:12px;border-radius:8px;font-size:13px;text-align:center;margin-bottom:14px;display:none;"></div>'
+    + '<div id="rt-err" style="background:#3e1a00;border:1px solid #c62828;color:#ef9a9a;padding:12px;border-radius:8px;font-size:13px;text-align:center;margin-bottom:14px;display:none;"></div>'
+    + '<div style="font-size:11px;color:#607d8b;background:#0d2137;border:1px solid #1e3a5f;border-radius:6px;padding:10px;margin-bottom:16px;">'
+    + '10–20 characters · at least one uppercase, lowercase, number and symbol</div>'
+    + '<label style="font-size:13px;color:#90caf9;display:block;margin-bottom:5px;">New Dashboard Password</label>'
+    + '<input type="password" id="rt-new" placeholder="New dashboard password (10–20 chars)" maxlength="20" style="width:100%;padding:13px;border:1.5px solid #1e3a5f;border-radius:8px;background:#0d1b2a;color:#fff;font-size:15px;box-sizing:border-box;margin-bottom:14px;">'
+    + '<label style="font-size:13px;color:#90caf9;display:block;margin-bottom:5px;">Confirm New Password</label>'
+    + '<input type="password" id="rt-confirm" placeholder="Repeat password" maxlength="20" style="width:100%;padding:13px;border:1.5px solid #1e3a5f;border-radius:8px;background:#0d1b2a;color:#fff;font-size:15px;box-sizing:border-box;margin-bottom:20px;">'
+    + '<button onclick="submitDashReset(\'' + token + '\')" style="display:block;width:100%;padding:15px;background:#4fc3f7;color:#0d1b2a;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;">Set New Dashboard Password</button>'
+    + '</div></div>';
+  })();
+
+  async function submitDashReset(token) {
+    const ok  = document.getElementById("rt-ok");
+    const err = document.getElementById("rt-err");
+    ok.style.display = err.style.display = "none";
+    const newPin  = document.getElementById("rt-new")    ? document.getElementById("rt-new").value.trim()    : "";
+    const confirm = document.getElementById("rt-confirm") ? document.getElementById("rt-confirm").value.trim() : "";
+    if (!newPin || !confirm) { err.textContent = "Please fill in both fields."; err.style.display = "block"; return; }
+    if (newPin !== confirm)  { err.textContent = "Passwords do not match.";      err.style.display = "block"; return; }
+    try {
+      const r = await fetch(`${SCRIPT_URL}?action=resetPinWithToken&token=${encodeURIComponent(token)}&newPin=${encodeURIComponent(newPin)}&confirmPin=${encodeURIComponent(confirm)}`);
+      const d = await r.json();
+      if (d.ok) {
+        ok.textContent = "✅ Dashboard password reset! Redirecting to login…";
+        ok.style.display = "block";
+        setTimeout(() => { window.location.href = "dashboard.html"; }, 2500);
+      } else {
+        err.textContent = d.error || "Reset failed. The link may have expired.";
+        err.style.display = "block";
+      }
+    } catch(e) {
+      err.textContent = "Connection error. Please try again.";
+      err.style.display = "block";
+    }
+  }
+
+  // ══════════════════════════════════════════════════════
+  // AUTO-LOGIN FROM SESSION
+  // ══════════════════════════════════════════════════════
+  (async function init() {
+    const savedEmail = sessionStorage.getItem("tc_email");
+    const savedPin   = sessionStorage.getItem("tc_pin");
+    if (savedEmail && savedPin) {
+      userEmail = savedEmail;
+      userPin   = savedPin;
+      document.getElementById("inp-email").value = savedEmail;
+      document.getElementById("login-screen").style.display     = "none";
+      document.getElementById("dashboard-screen").style.display = "block";
+      document.getElementById("topbar-email").textContent       = userEmail;
+      renderCards([]); // show loader
+      await loadDashboard();
+      startAutoRefresh();
+    }
+  })();
+
+  // ══════════════════════════════════════════════════════
+  // GRAPH MODAL
+  // ══════════════════════════════════════════════════════
+  let graphDeviceID = null;
+  let graphDays     = 1;
+  let charts        = {};   // keyed by canvas id
+
+  function openGraphs(deviceID, street, town) {
+    graphDeviceID = deviceID;
+    document.getElementById("modal-title").textContent = street || deviceID;
+    document.getElementById("modal-sub").textContent   = town   || "";
+    document.getElementById("graph-modal").classList.add("open");
+    document.body.style.overflow = "hidden";
+    // Reset to 24h tab
+    document.querySelectorAll(".range-tab").forEach((t, i) => {
+      t.classList.toggle("active", i === 0);
+    });
+    graphDays = 1;
+    loadGraphData();
+  }
+
+  function closeModalDirect() {
+    document.getElementById("graph-modal").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById("graph-modal")) closeModalDirect();
+  }
+
+  function setRange(days, btn) {
+    graphDays = days;
+    document.querySelectorAll(".range-tab").forEach(t => t.classList.remove("active"));
+    btn.classList.add("active");
+    loadGraphData();
+  }
+
+  async function loadGraphData() {
+    if (!graphDeviceID) return;
+
+    // Show loaders, hide canvases
+    ["temp","humid","pm","noise"].forEach(k => {
+      document.getElementById("chart-" + k + "-loading").style.display = "flex";
+      document.getElementById("chart-" + k + "-loading").textContent   = "Loading…";
+      document.getElementById("chart-" + k).style.display              = "none";
+      if (charts[k]) { charts[k].destroy(); delete charts[k]; }
+    });
+
+    try {
+      const url = `${SCRIPT_URL}?action=getReadings`
+        + `&deviceID=${encodeURIComponent(graphDeviceID)}`
+        + `&email=${encodeURIComponent(userEmail)}`
+        + `&pin=${encodeURIComponent(userPin)}`
+        + `&days=${graphDays}`;
+
+      const r = await fetch(url);
+      const d = await r.json();
+
+      if (!d.ok) {
+        ["temp","humid","pm","noise"].forEach(k => {
+          document.getElementById("chart-" + k + "-loading").textContent = d.error || "Failed to load";
+        });
+        return;
+      }
+
+      if (!d.readings || d.readings.length === 0) {
+        ["temp","humid","pm","noise"].forEach(k => {
+          document.getElementById("chart-" + k + "-loading").textContent =
+            "No data yet — readings arrive every 10 minutes.";
+        });
+        return;
+      }
+
+      // Build labels and datasets
+      const labels     = d.readings.map(r => fmtChartLabel(r.ts, graphDays));
+      const tempData   = d.readings.map(r => r.temp);
+      const humData    = d.readings.map(r => r.humidity);
+      const pmData     = d.readings.map(r => r.pm25);
+      const noiseData  = d.readings.map(r => r.noise != null ? Math.round(r.noise / 4095 * 100) : null);
+
+      renderChart("temp",  labels, tempData,  "Temperature (°C)", "#4fc3f7",
+        { min: null, max: null, thresholdHigh: 35, thresholdLow: 10 });
+      renderChart("humid", labels, humData,   "Humidity (%)",      "#64b5f6",
+        { min: 0, max: 100, thresholdHigh: 75 });
+      renderChart("pm",    labels, pmData,    "PM2.5 (µg/m³)",     "#81c784",
+        { min: 0, max: null, thresholdHigh: 75 });
+      renderChart("noise", labels, noiseData, "Noise Level (%)",    "#ffb74d",
+        { min: 0, max: 100, thresholdHigh: 80, thresholdLow: 70 });
+
+    } catch(e) {
+      ["temp","humid","pm","noise"].forEach(k => {
+        document.getElementById("chart-" + k + "-loading").textContent = "Connection error.";
+      });
+    }
+  }
+
+  function renderChart(key, labels, data, label, color, opts) {
+    const loading = document.getElementById("chart-" + key + "-loading");
+    const canvas  = document.getElementById("chart-" + key);
+
+    // Check if there's any non-null data
+    const hasData = data.some(v => v !== null && v !== undefined);
+    if (!hasData) {
+      loading.textContent = "No data for this period.";
+      return;
+    }
+
+    loading.style.display = "none";
+    canvas.style.display  = "block";
+
+    // Build threshold annotation lines
+    const annotations = {};
+    if (opts.thresholdHigh != null) {
+      annotations.highLine = {
+        type: "line", yMin: opts.thresholdHigh, yMax: opts.thresholdHigh,
+        borderColor: "rgba(239,83,80,0.5)", borderWidth: 1,
+        borderDash: [4, 4],
+      };
+    }
+    if (opts.thresholdLow != null) {
+      annotations.lowLine = {
+        type: "line", yMin: opts.thresholdLow, yMax: opts.thresholdLow,
+        borderColor: "rgba(79,195,247,0.4)", borderWidth: 1,
+        borderDash: [4, 4],
+      };
+    }
+
+    charts[key] = new Chart(canvas, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label,
+          data,
+          borderColor:     color,
+          backgroundColor: color + "18",
+          borderWidth:     2,
+          pointRadius:     labels.length > 24 ? 0 : 3,
+          pointHoverRadius: 4,
+          tension:         0.35,
+          fill:            true,
+          spanGaps:        true,
+        }]
+      },
+      options: {
+        responsive:          true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#1a2a3a",
+            titleColor:      "#90caf9",
+            bodyColor:       "#e0e0e0",
+            borderColor:     "#1e3a5f",
+            borderWidth:     1,
+            callbacks: {
+              label: ctx => {
+                const v = ctx.parsed.y;
+                return v === null ? " No data" : " " + v;
+              }
+            }
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: "#607d8b", font: { size: 10 },
+              maxTicksLimit: graphDays <= 1 ? 8 : graphDays <= 3 ? 9 : graphDays <= 7 ? 7 : graphDays <= 14 ? 7 : 10,
+              maxRotation: 0,
+            },
+            grid: { color: "rgba(30,58,95,0.5)" },
+          },
+          y: {
+            min:    opts.min  != null ? opts.min  : undefined,
+            max:    opts.max  != null ? opts.max  : undefined,
+            ticks:  { color: "#607d8b", font: { size: 10 } },
+            grid:   { color: "rgba(30,58,95,0.5)" },
+          }
+        }
+      }
+    });
+  }
+
+  function fmtChartLabel(iso, days) {
+    try {
+      const d = new Date(iso);
+      if (days <= 1) {
+        // 24h: show "14:00"
+        return d.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" });
+      } else if (days <= 3) {
+        // 3 days: show "Mon 14:00"
+        return d.toLocaleDateString("en-ZA", { weekday: "short" })
+          + " " + d.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" });
+      } else if (days <= 7) {
+        // 7 days: show "Mon 25 Mar"
+        return d.toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" });
+      } else {
+        // 14-30 days: show "25 Mar"
+        return d.toLocaleDateString("en-ZA", { day: "numeric", month: "short" });
+      }
+    } catch(e) { return iso; }
+  }
+</script>
+</body>
+</html>
