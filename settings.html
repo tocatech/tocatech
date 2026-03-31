@@ -42,6 +42,32 @@
     .btn-cancel { background: #c62828; color: #fff; margin-top: 8px; }
     .btn-cancel:hover { background: #b71c1c; }
     .requested-box { background: #3e2800; border-left: 4px solid #f57c00; color: #ffb74d; padding: 14px; border-radius: 6px; font-size: 13px; line-height: 1.6; margin: 14px 0; }
+
+    /* ── Booking Calendar ── */
+    .bcal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-top:6px; }
+    .bcal-day-name { text-align:center; font-size:11px; color:#607d8b; padding:4px 0; font-weight:bold; }
+    .bcal-day {
+      text-align:center; padding:7px 2px; border-radius:6px; font-size:13px;
+      cursor:pointer; color:#cfd8dc; transition:background 0.15s;
+    }
+    .bcal-day:hover { background:#1e3a5f; }
+    .bcal-day.empty { cursor:default; }
+    .bcal-day.past  { color:#37474f; cursor:default; }
+    .bcal-day.booked { background:#1565c0; color:#fff; border-radius:0; }
+    .bcal-day.booked-start { background:#1565c0; color:#fff; border-radius:6px 0 0 6px; }
+    .bcal-day.booked-end   { background:#1565c0; color:#fff; border-radius:0 6px 6px 0; }
+    .bcal-day.booked-single { background:#1565c0; color:#fff; border-radius:6px; }
+    .bcal-day.selecting { background:#0d47a1; color:#fff; }
+    .bcal-day.today { font-weight:bold; color:#4fc3f7; }
+    .booking-chip {
+      display:flex; justify-content:space-between; align-items:center;
+      background:#1e3a5f; border-radius:6px; padding:8px 12px;
+      margin-bottom:6px; font-size:13px; color:#cfd8dc;
+    }
+    .booking-chip .remove-btn {
+      background:none; border:none; color:#ef5350; cursor:pointer;
+      font-size:16px; padding:0 4px; line-height:1;
+    }
   </style>
 </head>
 <body>
@@ -77,229 +103,403 @@
   <!-- ══════════ SETTINGS ══════════ -->
   <div id="settings-section" style="display:none">
     <div class="sub" id="welcome-msg"></div>
+    <div id="device-label-top" style="font-size:12px;color:#546e7a;text-align:center;margin-top:4px;margin-bottom:8px;"></div>
 
-    <div class="msg-ok"  id="sched-ok"></div>
-    <div class="msg-err" id="sched-err"></div>
+    <!-- Notification Settings (combined) -->
+    <div class="section">
+      <div class="sec-title" onclick="toggleSection('notif-body', 'notif-arrow')"
+        style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+        <span>🔔 Notification Settings</span>
+        <span id="notif-arrow" style="font-size:18px;transition:transform 0.2s;">▼</span>
+      </div>
+      <div id="notif-body" style="display:none;margin-top:12px;">
 
-    <!-- Alert hours -->
-    <div class="sec-title">Email Alert Hours</div>
-    <div class="sec-note">Only send alert emails within these hours. Leave blank for any time.</div>
-    <div class="two-col">
-      <div><label>Start (0–23)</label>
-           <input type="number" id="alertStart" min="0" max="23" placeholder="e.g. 8"></div>
-      <div><label>Stop (0–23)</label>
-           <input type="number" id="alertStop"  min="0" max="23" placeholder="e.g. 22"></div>
+        <div style="margin-bottom:6px;font-size:13px;color:#90caf9;font-weight:600;">Email Alert Hours</div>
+        <div class="sec-note">Only send alert emails within these hours. Leave blank to alert at any time.</div>
+        <div class="two-col">
+          <div><label>Start (0–23)</label>
+               <input type="number" id="alertStart" min="0" max="23" placeholder="e.g. 8"></div>
+          <div><label>Stop (0–23)</label>
+               <input type="number" id="alertStop"  min="0" max="23" placeholder="e.g. 22"></div>
+        </div>
+        <label>Min. time between emails (minutes)</label>
+        <input type="number" id="cooldown" min="0" placeholder="e.g. 10">
+        <div class="hint">Default 10 minutes. Leave blank for no limit.</div>
+
+        <div style="margin-top:18px;margin-bottom:6px;font-size:13px;color:#90caf9;font-weight:600;">📱 WhatsApp Notifications</div>
+        <div class="sec-note">Receive instant WhatsApp alerts alongside email. You can send alerts to a different number than your registered phone.</div>
+        <select id="whatsappEnabled">
+          <option value="YES">Enabled — send WhatsApp alerts</option>
+          <option value="NO">Disabled — email only</option>
+        </select>
+        <label>WhatsApp Number</label>
+        <input type="text" id="whatsappNumber" placeholder="e.g. +27641234567">
+        <div class="hint">NB! Include the country code of your cell number without the "+" sign. eg: 277668814573. Leave blank to use your registered phone number.</div>
+        <div class="two-col" style="margin-top:10px;">
+          <div><label>Start (0–23)</label>
+               <input type="number" id="whatsappStart" min="0" max="23" placeholder="e.g. 8"></div>
+          <div><label>Stop (0–23)</label>
+               <input type="number" id="whatsappStop"  min="0" max="23" placeholder="e.g. 22"></div>
+        </div>
+        <div class="hint">Only send WhatsApp notifications within these hours. Leave blank to alert at any time.</div>
+        <label>Min. time between messages (minutes)</label>
+        <input type="number" id="whatsappCooldown" min="0" placeholder="e.g. 10">
+        <div class="hint">Default 10 minutes. Leave blank for no limit.</div>
+
+      </div>
     </div>
-    <label>Min. time between emails (minutes)</label>
-    <input type="number" id="cooldown" min="0" placeholder="e.g. 30">
-    <div class="hint">Leave blank for no limit.</div>
 
     <!-- Motion -->
+    <!-- ══════════ DEVICE SETTINGS (collapsible) ══════════ -->
     <div class="section">
-      <div class="sec-title">Motion Sensor</div>
-      <select id="motionEnabled">
-        <option value="YES">Enabled — alert on motion</option>
-        <option value="NO">Disabled — ignore motion</option>
-      </select>
-      <div class="two-col" style="margin-top:10px">
-        <div><label>Active from (hr)</label>
-             <input type="number" id="motionStart" min="0" max="23" placeholder="e.g. 22"></div>
-        <div><label>Active until (hr)</label>
-             <input type="number" id="motionStop"  min="0" max="23" placeholder="e.g. 6"></div>
+      <div class="sec-title" onclick="toggleSection('device-settings-body','device-settings-arrow')"
+        style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+        <span>🔧 Device Settings</span>
+        <span id="device-settings-arrow" style="font-size:18px;transition:transform 0.2s;">▼</span>
       </div>
-      <div class="hint">Leave blank to alert at all hours.</div>
+      <div id="device-settings-body" style="display:none;margin-top:16px;">
 
-      <!-- Rental Mode -->
-      <div style="background:#0d2137;border-radius:8px;padding:14px;margin-top:14px;">
-        <div style="color:#4fc3f7;font-size:13px;font-weight:bold;margin-bottom:6px;">🏠 Rental Mode / Airbnb Mode</div>
-        <div style="color:#607d8b;font-size:12px;margin-bottom:10px;">Motion alerts are automatically disabled while your property is occupied by guests. Smoke and sound sensors remain active. Leave blank if no guests are booked.</div>
-        <div class="two-col">
-          <div><label>Check-in date</label>
-               <input type="date" id="motionDisableFrom"></div>
-          <div><label>Check-out date</label>
-               <input type="date" id="motionDisableTo"></div>
+        <!-- Motion Sensor -->
+        <div style="border-top:1px solid #1e3a5f;padding-top:16px;margin-top:4px;">
+          <div style="font-size:15px;font-weight:bold;color:#fff;margin-bottom:8px;">🏃 Motion Sensor</div>
+          <select id="motionEnabled">
+            <option value="YES">Enabled — alert on motion</option>
+            <option value="NO">Disabled — ignore motion</option>
+          </select>
+          <div class="two-col" style="margin-top:10px">
+            <div><label>Active from (hr)</label>
+                 <input type="number" id="motionStart" min="0" max="23" placeholder="e.g. 22"></div>
+            <div><label>Active until (hr)</label>
+                 <input type="number" id="motionStop"  min="0" max="23" placeholder="e.g. 6"></div>
+          </div>
+          <div class="hint">Leave blank to alert at all hours.</div>
+
         </div>
-        <div class="hint" style="margin-top:8px;">Past dates are ignored automatically — no need to clear them after the stay.</div>
+
+        <!-- Cigarette Smoke -->
+        <div style="border-top:1px solid #1e3a5f;padding-top:16px;margin-top:16px;">
+          <div style="font-size:15px;font-weight:bold;color:#fff;margin-bottom:8px;">🚬 Cigarette Smoke Detection</div>
+          <div class="sec-note">The device uses a PM2.5 air quality sensor to detect cigarette smoke. When sustained elevated particulate levels are detected, you receive an immediate alert email with air quality readings.</div>
+          <div id="pm-info" style="display:none;margin-bottom:12px;background:#1a2a3a;border-radius:6px;padding:10px;font-size:13px;color:#90caf9;"></div>
+          <select id="smokeEnabled">
+            <option value="YES">Enabled — alert on smoke</option>
+            <option value="NO">Disabled — ignore smoke</option>
+          </select>
+          <div class="warning">⚠ It is strongly recommended to keep the smoke sensor enabled at all times.</div>
+        </div>
+
+        <!-- Sound Sensor -->
+        <div style="border-top:1px solid #1e3a5f;padding-top:16px;margin-top:16px;">
+          <div style="font-size:15px;font-weight:bold;color:#fff;margin-bottom:8px;">🔊 Sound Sensor</div>
+          <select id="soundEnabled">
+            <option value="YES">Enabled — alert on sustained loud noise</option>
+            <option value="NO">Disabled — ignore loud noise</option>
+          </select>
+
+          <div style="margin-top:14px;margin-bottom:6px;font-size:13px;color:#90caf9;font-weight:600;">Noise Thresholds</div>
+          <div class="sec-note">Set separate alert thresholds for daytime and night time. 0–100 scale (100 = maximum noise 100db).</div>
+          <div class="two-col" style="margin-top:10px">
+            <div><label>Daytime threshold (%)</label>
+                 <input type="number" id="soundThresholdDay" min="0" max="100" placeholder="e.g. 80"></div>
+            <div><label>Night time threshold (%)</label>
+                 <input type="number" id="soundThresholdNight" min="0" max="100" placeholder="e.g. 70"></div>
+          </div>
+
+          <div style="margin-top:14px;margin-bottom:6px;font-size:13px;color:#90caf9;font-weight:600;">Time Periods</div>
+          <div class="sec-note">Define when day and night begins. Daytime threshold applies between daytime start and night start.</div>
+          <div class="two-col" style="margin-top:10px">
+            <div><label>☀️ Daytime starts (hr)</label>
+                 <input type="number" id="nightSoundStop"  min="0" max="23" placeholder="e.g. 7"></div>
+            <div><label>🌙 Night time starts (hr)</label>
+                 <input type="number" id="nightSoundStart" min="0" max="23" placeholder="e.g. 23"></div>
+          </div>
+          <div class="hint">e.g. Day starts 07:00, Night starts 23:00 → daytime threshold applies 07:00–23:00, night threshold 23:00–07:00.</div>
+
+          <div style="margin-top:14px;margin-bottom:6px;font-size:13px;color:#90caf9;font-weight:600;">Alert Window</div>
+          <div class="sec-note">Optionally restrict sound alerts to certain hours only. Leave blank to alert at all hours.</div>
+          <div class="two-col" style="margin-top:10px">
+            <div><label>Active from (hr)</label>
+                 <input type="number" id="soundStart" min="0" max="23" placeholder="e.g. 22"></div>
+            <div><label>Active until (hr)</label>
+                 <input type="number" id="soundStop"  min="0" max="23" placeholder="e.g. 6"></div>
+          </div>
+        </div>
+
+        <!-- Environment Thresholds -->
+        <div style="border-top:1px solid #1e3a5f;padding-top:16px;margin-top:16px;">
+          <div style="font-size:15px;font-weight:bold;color:#fff;margin-bottom:8px;">🌡 Environment Thresholds</div>
+          <div class="sec-note">Get an email if temperature or humidity goes outside these limits. Readings every 10 minutes.</div>
+          <div class="two-col">
+            <div><label>Temp too high (°C)</label>
+                 <input type="number" id="tempHigh" placeholder="e.g. 35"></div>
+            <div><label>Temp too low (°C)</label>
+                 <input type="number" id="tempLow"  placeholder="e.g. 5"></div>
+          </div>
+          <label>Humidity too high (%)</label>
+          <input type="number" id="humidHigh" placeholder="e.g. 75">
+          <div class="hint">Environmental alerts have a 1-hour cooldown between emails.</div>
+        </div>
+
+        <!-- Save button inside collapsible -->
+        <div style="border-top:1px solid #1e3a5f;padding-top:16px;margin-top:16px;">
+          <button class="btn" id="save-btn" onclick="saveSchedule()">Save Settings</button>
+          <div id="sched-ok"  class="msg-ok" style="margin-top:10px;"></div>
+          <div id="sched-err" class="msg-err" style="margin-top:10px;"></div>
+        </div>
+
       </div>
-
-      <!-- Nightly WiFi Scan -->
-      <div style="background:#0d2137;border-radius:8px;padding:14px;margin-top:14px;">
-        <div style="color:#4fc3f7;font-size:13px;font-weight:bold;margin-bottom:6px;">📡 Nightly WiFi Device Report</div>
-        <div style="color:#607d8b;font-size:12px;margin-bottom:10px;">Between 2am and 6am, the device counts phones on your WiFi and sends you a nightly report. If tonight's count is higher than last night's, it sends an alert instead.</div>
-        <label>Send report when this many or more devices are found</label>
-        <input type="number" id="nightScanMin" min="0" max="20" placeholder="e.g. 2">
-        <div class="hint">Default is 2. Set to 0 to get a report every night regardless of count.</div>
-        <div id="last-scan-info" style="display:none;margin-top:10px;background:#1a2a3a;border-radius:6px;padding:10px;font-size:13px;color:#90caf9;"></div>
-      </div>
     </div>
-
-    <!-- Smoke -->
-    <div class="section">
-      <div class="sec-title">🚬 Cigarette Smoke Detection</div>
-      <div class="sec-note">The device uses a PM2.5 air quality sensor to detect cigarette smoke. When sustained elevated particulate levels are detected, you receive an immediate alert email with air quality readings.</div>
-      <div id="pm-info" style="display:none;margin-bottom:12px;background:#1a2a3a;border-radius:6px;padding:10px;font-size:13px;color:#90caf9;"></div>
-      <select id="smokeEnabled">
-        <option value="YES">Enabled — alert on smoke</option>
-        <option value="NO">Disabled — ignore smoke</option>
-      </select>
-      <div class="warning">⚠ It is strongly recommended to keep the smoke sensor enabled at all times.</div>
-    </div>
-
-    <!-- Sound -->
-    <div class="section">
-      <div class="sec-title">Sound Sensor</div>
-      <select id="soundEnabled">
-        <option value="YES">Enabled — alert on sustained loud noise</option>
-        <option value="NO">Disabled — ignore loud noise</option>
-      </select>
-      <div class="two-col" style="margin-top:10px">
-        <div><label>Active from (hr)</label>
-             <input type="number" id="soundStart" min="0" max="23" placeholder="e.g. 22"></div>
-        <div><label>Active until (hr)</label>
-             <input type="number" id="soundStop"  min="0" max="23" placeholder="e.g. 6"></div>
-      </div>
-      <div class="hint">Leave blank to alert at all hours.</div>
-    </div>
-
-    <!-- Environment -->
-    <div class="section">
-      <div class="sec-title">🌡 Environment Thresholds</div>
-      <div class="sec-note">Get an email if temperature or humidity goes outside these limits. Readings every 10 minutes.</div>
-      <div class="two-col">
-        <div><label>Temp too high (°C)</label>
-             <input type="number" id="tempHigh" placeholder="e.g. 35"></div>
-        <div><label>Temp too low (°C)</label>
-             <input type="number" id="tempLow"  placeholder="e.g. 5"></div>
-      </div>
-      <label>Humidity too high (%)</label>
-      <input type="number" id="humidHigh" placeholder="e.g. 75">
-      <div class="hint">Alerts have a 1-hour cooldown between emails.</div>
-    </div>
-
-    <!-- WhatsApp -->
-    <div class="section">
-      <div class="sec-title">📱 WhatsApp Notifications</div>
-      <div class="sec-note">Receive instant WhatsApp alerts alongside email. You can send alerts to a different number than your registered phone.</div>
-      <select id="whatsappEnabled">
-        <option value="YES">Enabled — send WhatsApp alerts</option>
-        <option value="NO">Disabled — email only</option>
-      </select>
-      <label>WhatsApp Number</label>
-      <input type="text" id="whatsappNumber" placeholder="e.g. +27641234567">
-      <div class="hint">Include country code (e.g. +27 for SA, +31 for NL). Leave blank to use your registered phone number.</div>
-    </div>
-
-    <button class="btn" id="save-btn" onclick="saveSchedule()">Save Settings</button>
 
     <!-- Personal info -->
     <div class="section">
-      <div class="sec-title">Update My Information</div>
-      <div class="sec-note">Updating your details will place your account on hold pending review by Tocatech.</div>
-      <div class="msg-ok"  id="info-ok"></div>
-      <div class="msg-err" id="info-err"></div>
-      <label>First Name</label>  <input type="text"  id="fname">
-      <label>Surname</label>     <input type="text"  id="surname">
-      <label>Email</label>       <input type="email" id="email">
-      <label>Phone</label>       <input type="text"  id="phone">
-      <label>Street No.</label>  <input type="text"  id="streetno">
-      <label>Street Name</label> <input type="text"  id="streetname">
-      <label>Town</label>        <input type="text"  id="town">
-      <label>Province</label>    <input type="text"  id="province">
-      <label>Country</label>     <input type="text"  id="country">
-      <label>Postal Code</label> <input type="text"  id="postalcode">
-      <div class="warning">⚠ Saving will set your account to PENDING. Alerts pause until Tocatech reactivates your account (usually within 24 hours).</div>
-      <button class="btn btn-warn" id="info-btn" onclick="saveInfo()">Update My Information</button>
+      <div class="sec-title" onclick="toggleSection('info-body', 'info-arrow')"
+        style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+        <span>Update My Information</span>
+        <span id="info-arrow" style="font-size:18px;transition:transform 0.2s;">▼</span>
+      </div>
+      <div id="info-body" style="display:none;margin-top:12px;">
+        <div class="sec-note">⚠️ Updating your details will place your account on hold pending review by our support team</div>
+        <div class="msg-ok"  id="info-ok"></div>
+        <div class="msg-err" id="info-err"></div>
+        <label>First Name</label>  <input type="text"  id="fname">
+        <label>Surname</label>     <input type="text"  id="surname">
+        <label>Email</label>       <input type="email" id="email">
+        <label>Phone</label>       <input type="text"  id="phone">
+        <div class="hint" style="margin-top:4px;margin-bottom:10px;">⚠️ Include the country code without the "+" sign. e.g. <strong>27</strong>7668814573 (South Africa).</div>
+        <label>Street No.</label>  <input type="text"  id="streetno">
+        <label>Street Name</label> <input type="text"  id="streetname">
+        <label>Town</label>        <input type="text"  id="town">
+        <label>Province</label>    <input type="text"  id="province">
+        <label>Country</label>     <input type="text"  id="country">
+        <label>Postal Code</label> <input type="text"  id="postalcode">
+        <div class="warning">⚠ Saving will set your account to PENDING. Alerts pause until the support team reactivates your account (usually within 24 hours).</div>
+        <button class="btn btn-warn" id="info-btn" onclick="saveInfo()">Update My Information</button>
+      </div>
     </div>
 
-    <div class="device" id="device-label"></div>
-
-    <!-- ══════════ CALENDAR INTEGRATION ══════════ -->
+    <!-- ══════════ RENTAL MODE ══════════ -->
     <div class="section">
-      <div class="sec-title">📅 Rental Platform Calendars</div>
-      <div class="sec-note">Add iCal links from all platforms you use. Tocatech suppresses motion alerts when any calendar shows a booking — and alerts you the moment someone is there when the property should be empty.</div>
-      <div class="msg-ok"  id="cal-ok"  style="display:none"></div>
-      <div class="msg-err" id="cal-err" style="display:none"></div>
-
-      <!-- Added calendars list -->
-      <div id="cal-list" style="margin:14px 0;display:flex;flex-direction:column;gap:8px;"></div>
-
-      <!-- Add new calendar form -->
-      <div style="background:#0d2137;border-radius:8px;padding:14px;margin-top:4px;">
-        <div style="font-size:12px;font-weight:700;color:#4fc3f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">+ Add Calendar</div>
-        <label style="margin-top:0;">Platform</label>
-        <select id="cal-new-label" style="margin-bottom:8px;">
-          <option value="Airbnb">Airbnb</option>
-          <option value="Booking.com">Booking.com</option>
-          <option value="VRBO">VRBO</option>
-          <option value="Stayz">Stayz</option>
-          <option value="TripAdvisor">TripAdvisor</option>
-          <option value="Direct">Direct / Other</option>
-        </select>
-        <label>iCal URL</label>
-        <input type="text" id="cal-new-url" placeholder="https://www.airbnb.com/calendar/ical/...">
-        <div style="font-size:11px;color:#607d8b;margin-top:6px;line-height:1.6;">
-          <b style="color:#90caf9;">Airbnb:</b> Listing → Availability → Export Calendar &nbsp;·&nbsp;
-          <b style="color:#90caf9;">Booking.com:</b> Property → Calendar → Export → iCal
-        </div>
-        <button class="btn" style="margin-top:12px;" onclick="addCalendar()">Add Calendar</button>
+      <div class="sec-title" onclick="toggleSection('rental-body', 'rental-arrow')"
+        style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+        <span>🏠 Rental Mode</span>
+        <span id="rental-arrow" style="font-size:18px;transition:transform 0.2s;">▼</span>
       </div>
+      <div id="rental-body" style="display:none;margin-top:12px;">
 
-      <!-- Live status display -->
-      <div id="cal-status-box" style="display:none;margin-top:14px;background:#0d2137;border-radius:8px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <span style="font-size:13px;font-weight:bold;color:#90caf9;">Overall Status</span>
-          <span id="cal-status-badge" style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:50px;"></span>
+        <div class="sec-note">When rental mode is active, motion alerts are automatically disabled during guest stays. Smoke and sound sensors remain active.</div>
+
+        <!-- Manual Booking Calendar -->
+        <div style="background:#0d2137;border-radius:8px;padding:14px;margin-top:14px;">
+          <div style="color:#4fc3f7;font-size:13px;font-weight:bold;margin-bottom:6px;">📆 Manual Guest Dates</div>
+          <div style="color:#90a4ae;font-size:12px;margin-bottom:12px;">
+            Add booking periods as a fallback. When a calendar feed is connected and working, the calendar takes priority.
+            <strong style="color:#fff;">If your calendar feed is unreachable or fails to load, the system automatically falls back to these manual dates.</strong>
+          </div>
+
+          <!-- Calendar navigation -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <button type="button" onclick="calNav(-1)" style="background:#1e3a5f;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:16px;">‹</button>
+            <span id="cal-month-label" style="color:#fff;font-weight:bold;font-size:14px;"></span>
+            <button type="button" onclick="calNav(1)"  style="background:#1e3a5f;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:16px;">›</button>
+          </div>
+
+          <!-- Calendar grid -->
+          <div id="booking-calendar" style="user-select:none;"></div>
+
+          <div class="hint" style="margin-top:8px;">
+            Click a start date then an end date to add a booking. Click a booked date to remove it.
+          </div>
+
+          <!-- Booking list -->
+          <div id="booking-list" style="margin-top:12px;"></div>
+
+          <button type="button" onclick="saveManualBookings()"
+            style="margin-top:12px;background:#4fc3f7;color:#0a1628;border:none;border-radius:8px;padding:10px 20px;font-weight:bold;cursor:pointer;width:100%;font-size:14px;">
+            💾 Save Booking Dates
+          </button>
+          <div id="booking-ok"  class="msg-ok"  style="display:none;margin-top:8px;"></div>
+          <div id="booking-err" class="msg-err" style="display:none;margin-top:8px;"></div>
         </div>
-        <div style="font-size:12px;color:#607d8b;" id="cal-booking-end"></div>
-        <div style="font-size:12px;color:#607d8b;margin-top:4px;" id="cal-next-booking"></div>
-        <div id="cal-platform-results" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
-        <div style="font-size:11px;color:#445;margin-top:8px;" id="cal-last-sync"></div>
-      </div>
 
-      <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn" style="flex:1;" onclick="saveCalendars()">Save All Calendars</button>
-        <button class="btn" style="flex:0 0 auto;width:auto;padding:15px 18px;background:#1e3a5f;color:#4fc3f7;" onclick="refreshCalendar()" title="Sync now">⟳</button>
+        <!-- Calendar feeds -->
+        <div style="background:#0d2137;border-radius:8px;padding:14px;margin-top:12px;">
+          <div style="color:#4fc3f7;font-size:13px;font-weight:bold;margin-bottom:6px;">📅 Rental Platform Calendars</div>
+          <div style="color:#90a4ae;font-size:12px;margin-bottom:10px;">
+            Add iCal links from Airbnb, Booking.com, and other platforms. Tocatech syncs these every 30 minutes and disables motion alerts when any calendar shows a booking.
+            If no calendar is added, or if a feed is temporarily unreachable, the system uses your manual dates above as a fallback.
+          </div>
+          <div class="msg-ok"  id="cal-ok"  style="display:none"></div>
+          <div class="msg-err" id="cal-err" style="display:none"></div>
+
+          <!-- Added calendars list -->
+          <div id="cal-list" style="margin:14px 0;display:flex;flex-direction:column;gap:8px;"></div>
+
+          <!-- Add new calendar form -->
+          <div style="border-top:1px solid #1e3a5f;padding-top:12px;margin-top:4px;">
+            <div style="font-size:12px;font-weight:700;color:#4fc3f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">+ Add Calendar</div>
+            <label style="margin-top:0;">Platform</label>
+            <select id="cal-new-label" style="margin-bottom:8px;">
+              <option value="Airbnb">Airbnb</option>
+              <option value="Booking.com">Booking.com</option>
+              <option value="VRBO">VRBO</option>
+              <option value="Stayz">Stayz</option>
+              <option value="TripAdvisor">TripAdvisor</option>
+              <option value="Direct">Direct / Other</option>
+            </select>
+            <label>iCal URL</label>
+            <input type="text" id="cal-new-url" placeholder="https://www.airbnb.com/calendar/ical/...">
+            <div style="font-size:11px;color:#607d8b;margin-top:6px;line-height:1.6;">
+              <b style="color:#90caf9;">Airbnb:</b> Listing → Availability → Export Calendar &nbsp;·&nbsp;
+              <b style="color:#90caf9;">Booking.com:</b> Property → Calendar → Export → iCal
+            </div>
+            <button class="btn" style="margin-top:12px;" onclick="addCalendar()">Add Calendar</button>
+          </div>
+
+          <!-- Live status display -->
+          <div id="cal-status-box" style="display:none;margin-top:14px;background:#071929;border-radius:8px;padding:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span style="font-size:13px;font-weight:bold;color:#90caf9;">Overall Status</span>
+              <span id="cal-status-badge" style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:50px;"></span>
+            </div>
+            <div style="font-size:12px;color:#607d8b;" id="cal-booking-end"></div>
+            <div style="font-size:12px;color:#607d8b;margin-top:4px;" id="cal-next-booking"></div>
+            <div id="cal-platform-results" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+            <div style="font-size:11px;color:#445;margin-top:8px;" id="cal-last-sync"></div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:14px;">
+            <button class="btn" style="flex:1;" onclick="saveCalendars()">Save All Calendars</button>
+            <button class="btn" style="flex:0 0 auto;width:auto;padding:15px 18px;background:#1e3a5f;color:#4fc3f7;" onclick="refreshCalendar()" title="Sync now">⟳</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════ PIN MANAGEMENT ══════════ -->
+    <div class="section" id="change-pin-section" style="display:none">
+      <div class="sec-title" onclick="toggleSection('pin-mgmt-body','pin-mgmt-arrow')"
+        style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+        <span>🔑 PIN Management</span>
+        <span id="pin-mgmt-arrow" style="font-size:18px;transition:transform 0.2s;">▼</span>
+      </div>
+      <div id="pin-mgmt-body" style="display:none;margin-top:12px;">
+
+        <div style="margin-bottom:6px;font-size:13px;color:#90caf9;font-weight:600;">Change Device PIN</div>
+        <div class="sec-note">Your device PIN is 6 digits and is used to access this settings page.</div>
+        <div id="cp-ok"  class="msg-ok"></div>
+        <div id="cp-err" class="msg-err"></div>
+        <label>Current PIN</label>
+        <div class="pin-wrap">
+          <input type="password" id="cp-current" placeholder="Your current 6-digit PIN" maxlength="6" inputmode="numeric">
+          <button class="eye-btn" type="button" onclick="toggleField('cp-current','cp-eye1')" id="cp-eye1">👁</button>
+        </div>
+        <label>New PIN</label>
+        <div class="pin-wrap">
+          <input type="password" id="cp-new" placeholder="New 6-digit PIN" maxlength="6" inputmode="numeric">
+          <button class="eye-btn" type="button" onclick="toggleField('cp-new','cp-eye2')" id="cp-eye2">👁</button>
+        </div>
+        <label>Confirm New PIN</label>
+        <input type="password" id="cp-confirm" placeholder="Repeat new PIN" maxlength="6" inputmode="numeric">
+        <button class="btn" onclick="changeDevicePin()">Update Device PIN</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── ESP-NOW Peripherals ──────────────────────────────── -->
+    <div class="section" id="peripherals-section" style="display:none;">
+      <div class="sec-title" onclick="toggleSection('peripherals-body','peripherals-arrow')"
+        style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+        <span>📡 ESP-NOW Peripherals</span>
+        <span id="peripherals-arrow" style="font-size:18px;transition:transform 0.2s;">▼</span>
+      </div>
+      <div id="peripherals-body" style="display:none;margin-top:12px;">
+        <p style="font-size:13px;color:#607d8b;margin-bottom:16px;">
+          Peripheral sensors connected to this device via ESP-NOW.
+          Premium subscription required for peripherals to be active.
+        </p>
+        <div id="peripherals-list"></div>
+        <div style="background:#0d1b2a;border:1px solid #1e3a5f;border-radius:8px;padding:16px;margin-top:16px;">
+          <h4 style="color:#90caf9;margin-bottom:8px;font-size:14px;">Pair a New Peripheral</h4>
+          <ol style="font-size:13px;color:#607d8b;padding-left:20px;line-height:2;">
+            <li>Tap the <b>BOOT</b> button on the main device <b>7 times quickly</b> (within 3 seconds) — LED blinks rapidly</li>
+            <li>Tap the <b>BOOT</b> button on the peripheral device <b>7 times quickly</b> (within 3 seconds)</li>
+            <li>Both devices are now in pairing mode for 30 seconds</li>
+            <li>Once paired, the peripheral appears in this list below</li>
+            <li>Assign a location label (e.g. "Bedroom 1", "Front Door") and save</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ DEVICE MANAGEMENT ══════════ -->
+    <div class="section" id="device-mgmt-section" style="display:none">
+      <div class="sec-title" onclick="toggleSection('device-mgmt-body','device-mgmt-arrow')"
+        style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+        <span>⚙️ Device Management</span>
+        <span id="device-mgmt-arrow" style="font-size:18px;transition:transform 0.2s;">▼</span>
+      </div>
+      <div id="device-mgmt-body" style="display:none;margin-top:12px;">
+        <div class="sec-note">Use these controls to manage your device remotely.</div>
+        <div style="margin-top:16px;">
+          <div style="margin-bottom:8px;font-size:13px;color:#90caf9;font-weight:600;">Reboot Device</div>
+          <div style="font-size:12px;color:#607d8b;margin-bottom:10px;">
+            Sends a restart command to the device. It will reboot within 60 seconds.
+          </div>
+          <button id="reboot-btn" onclick="rebootDevice()"
+            style="background:#e65100;color:#fff;border:none;padding:10px 22px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">
+            🔄 Reboot Device
+          </button>
+          <div id="reboot-msg" style="margin-top:10px;font-size:13px;display:none;"></div>
+        </div>
       </div>
     </div>
 
     <!-- ══════════ CONTRACT & CANCELLATION ══════════ -->
     <div class="section" id="contract-section" style="display:none">
-      <div class="sec-title">📄 Contract & Subscription</div>
-      <div class="sec-note">Your Tocatech device is provided on a 12-month service contract.</div>
-
-      <div id="contract-details" style="margin:14px 0;background:#0d2137;border-radius:8px;padding:14px;">
-        <div class="contract-row">
-          <span class="contract-label">Contract started</span>
-          <span class="contract-value" id="c-start">—</span>
-        </div>
-        <div class="contract-row">
-          <span class="contract-label">Contract ends</span>
-          <span class="contract-value" id="c-end">—</span>
-        </div>
-        <div class="contract-row">
-          <span class="contract-label">Months completed</span>
-          <span class="contract-value" id="c-done">—</span>
-        </div>
-        <div class="contract-row">
-          <span class="contract-label">Months remaining</span>
-          <span class="contract-value" id="c-remaining">—</span>
-        </div>
-        <div class="contract-row">
-          <span class="contract-label">Monthly fee</span>
-          <span class="contract-value" id="c-fee">—</span>
-        </div>
+      <div class="sec-title" onclick="toggleSection('contract-body','contract-arrow')"
+        style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+        <span>📄 Contract & Subscription</span>
+        <span id="contract-arrow" style="font-size:18px;transition:transform 0.2s;">▼</span>
       </div>
+      <div id="contract-body" style="display:none;margin-top:12px;">
+        <div class="sec-note">Your Tocatech device is provided on a 12-month service contract.</div>
 
-      <div id="c-etf-box" style="display:none"></div>
+        <div id="contract-details" style="margin:14px 0;background:#0d2137;border-radius:8px;padding:14px;">
+          <div class="contract-row">
+            <span class="contract-label">Contract started</span>
+            <span class="contract-value" id="c-start">—</span>
+          </div>
+          <div class="contract-row">
+            <span class="contract-label">Contract ends</span>
+            <span class="contract-value" id="c-end">—</span>
+          </div>
+          <div class="contract-row">
+            <span class="contract-label">Months completed</span>
+            <span class="contract-value" id="c-done">—</span>
+          </div>
+          <div class="contract-row">
+            <span class="contract-label">Months remaining</span>
+            <span class="contract-value" id="c-remaining">—</span>
+          </div>
+          <div class="contract-row">
+            <span class="contract-label">Monthly fee</span>
+            <span class="contract-value" id="c-fee">—</span>
+          </div>
+        </div>
 
-      <div id="c-requested-box" class="requested-box" style="display:none">
-        ⏳ <b>Cancellation request pending.</b> Your request has been submitted and is being reviewed by Tocatech. You will receive an email once processed. Your device remains active until confirmed.
-      </div>
+        <div id="c-etf-box" style="display:none"></div>
 
-      <div id="c-cancel-wrap" style="display:none">
-        <button class="btn btn-cancel" id="cancel-btn" onclick="requestCancellation()">Request Cancellation</button>
-        <div class="hint" style="margin-top:8px;text-align:center;">
-          Your request will be reviewed. Device stays active until cancellation is confirmed.
+        <div id="c-requested-box" class="requested-box" style="display:none">
+          ⏳ <b>Cancellation request pending.</b> Your request has been submitted and is being reviewed by Tocatech. You will receive an email once processed. Your device remains active until confirmed.
+        </div>
+
+        <div id="c-cancel-wrap" style="display:none">
+          <button class="btn btn-cancel" id="cancel-btn" onclick="requestCancellation()">Request Cancellation</button>
+          <div class="hint" style="margin-top:8px;text-align:center;">
+            Your request will be reviewed. Device stays active until cancellation is confirmed.
+          </div>
         </div>
       </div>
     </div>
@@ -310,6 +510,146 @@
 <script>
   const SCRIPT_URL = 'https://api-xchr6zvwxq-uc.a.run.app';
   const deviceID   = new URLSearchParams(window.location.search).get('deviceID') || '';
+
+  // ── Booking Calendar State ──────────────────────────────────
+  let manualBookings = [];   // [{checkIn:"2026-03-25", checkOut:"2026-03-28"}, ...]
+  let calYear  = new Date().getFullYear();
+  let calMonth = new Date().getMonth();
+  let selectingStart = null; // date string being selected
+
+  const MONTH_NAMES = ["January","February","March","April","May","June",
+                       "July","August","September","October","November","December"];
+  const DAY_NAMES   = ["Mo","Tu","We","Th","Fr","Sa","Su"];
+
+  function calNav(dir) {
+    calMonth += dir;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+
+  function dateToStr(d) {
+    return d.getFullYear() + "-" +
+      String(d.getMonth()+1).padStart(2,"0") + "-" +
+      String(d.getDate()).padStart(2,"0");
+  }
+
+  function isInBooking(dateStr) {
+    return manualBookings.some(b => dateStr >= b.checkIn && dateStr <= b.checkOut);
+  }
+
+  function bookingContaining(dateStr) {
+    return manualBookings.find(b => dateStr >= b.checkIn && dateStr <= b.checkOut);
+  }
+
+  function renderCalendar() {
+    const label = document.getElementById("cal-month-label");
+    if (label) label.textContent = MONTH_NAMES[calMonth] + " " + calYear;
+    const grid  = document.getElementById("booking-calendar");
+    if (!grid) return;
+
+    const today = dateToStr(new Date());
+    const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+    // Adjust so week starts Monday
+    const startOffset = (firstDay + 6) % 7;
+
+    let html = '<div class="bcal-grid">';
+    DAY_NAMES.forEach(d => html += `<div class="bcal-day-name">${d}</div>`);
+    for (let i = 0; i < startOffset; i++) html += '<div class="bcal-day empty"></div>';
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const ds = calYear + "-" +
+        String(calMonth+1).padStart(2,"0") + "-" +
+        String(day).padStart(2,"0");
+      const isPast = ds < today;
+      const isToday = ds === today;
+      const b = bookingContaining(ds);
+      let cls = "bcal-day";
+      if (isPast) { cls += " past"; }
+      else if (b) {
+        const isStart  = ds === b.checkIn;
+        const isEnd    = ds === b.checkOut;
+        if (b.checkIn === b.checkOut) cls += " booked-single";
+        else if (isStart) cls += " booked-start";
+        else if (isEnd)   cls += " booked-end";
+        else              cls += " booked";
+      }
+      if (isToday) cls += " today";
+      const clickFn = isPast ? "" : `onclick="calDayClick('${ds}')"`;
+      html += `<div class="${cls}" ${clickFn}>${day}</div>`;
+    }
+    html += "</div>";
+    grid.innerHTML = html;
+    renderBookingList();
+  }
+
+  function calDayClick(ds) {
+    const existing = bookingContaining(ds);
+    if (existing) {
+      // Remove this booking
+      manualBookings = manualBookings.filter(b => b !== existing);
+      selectingStart = null;
+      renderCalendar();
+      return;
+    }
+    if (!selectingStart) {
+      selectingStart = ds;
+      // Highlight selected start
+      document.querySelectorAll(".bcal-day").forEach(el => {
+        if (el.textContent == String(parseInt(ds.slice(8)))) {
+          el.classList.add("selecting");
+        }
+      });
+    } else {
+      let start = selectingStart < ds ? selectingStart : ds;
+      let end   = selectingStart < ds ? ds : selectingStart;
+      manualBookings.push({ checkIn: start, checkOut: end });
+      manualBookings.sort((a,b) => a.checkIn.localeCompare(b.checkIn));
+      selectingStart = null;
+      renderCalendar();
+    }
+  }
+
+  function renderBookingList() {
+    const list = document.getElementById("booking-list");
+    if (!list) return;
+    if (manualBookings.length === 0) {
+      list.innerHTML = '<div style="font-size:13px;color:#607d8b;text-align:center;padding:8px 0;">No manual bookings added.</div>';
+      return;
+    }
+    list.innerHTML = manualBookings.map((b,i) => `
+      <div class="booking-chip">
+        <span>📅 ${b.checkIn} → ${b.checkOut}</span>
+        <button class="remove-btn" onclick="removeBooking(${i})" title="Remove">✕</button>
+      </div>
+    `).join("");
+  }
+
+  function removeBooking(i) {
+    manualBookings.splice(i, 1);
+    renderCalendar();
+  }
+
+  async function saveManualBookings() {
+    const okEl  = document.getElementById("booking-ok");
+    const errEl = document.getElementById("booking-err");
+    okEl.style.display = "none"; errEl.style.display = "none";
+    try {
+      const r = await fetch(`${SCRIPT_URL}?action=update&deviceID=${enc(deviceID)}&pin=${enc(clientPin)}&manualBookings=${enc(JSON.stringify(manualBookings))}`);
+      const d = await r.json();
+      if (d.ok || d.status === "saved") {
+        okEl.textContent = "✅ Booking dates saved.";
+        okEl.style.display = "block";
+      } else {
+        errEl.textContent = "❌ " + (d.error || "Failed to save.");
+        errEl.style.display = "block";
+      }
+    } catch(e) {
+      errEl.textContent = "❌ Network error. Try again.";
+      errEl.style.display = "block";
+    }
+  }
   let   clientPin  = '';
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -340,7 +680,7 @@
       hide('load-error');
       populate(data);
       document.getElementById('welcome-msg').textContent = 'Hello, ' + data.name;
-      document.getElementById('device-label').textContent = 'Device ID: ' + deviceID;
+      document.getElementById('device-label-top').textContent = 'Device ID: ' + deviceID;
       hide('loading-section');
       document.getElementById('settings-section').style.display = 'block';
     } catch (e) {
@@ -357,9 +697,13 @@
     setInput('motionStart',  d.motionStart);
     setInput('motionStop',   d.motionStop);
     setSel('smokeEnabled',   d.smokeEnabled);
-    setSel('soundEnabled',   d.soundEnabled);
-    setInput('soundStart',   d.soundStart);
-    setInput('soundStop',    d.soundStop);
+    setSel('soundEnabled',          d.soundEnabled);
+    setInput('soundStart',          d.soundStart);
+    setInput('soundStop',           d.soundStop);
+    setInput('soundThresholdDay',   d.soundThresholdDay   !== undefined ? d.soundThresholdDay   : 80);
+    setInput('soundThresholdNight', d.soundThresholdNight !== undefined ? d.soundThresholdNight : 70);
+    setInput('nightSoundStart',     d.nightSoundStart     !== undefined ? d.nightSoundStart     : 23);
+    setInput('nightSoundStop',      d.nightSoundStop      !== undefined ? d.nightSoundStop      : 7);
     setInput('tempHigh',     d.tempHigh);
     setInput('tempLow',      d.tempLow);
     setInput('humidHigh',    d.humidHigh);
@@ -373,11 +717,14 @@
     setInput('province',     d.province);
     setInput('country',      d.country);
     setInput('postalcode',   d.postalcode);
-    setSel('whatsappEnabled', d.whatsappEnabled);
-    setInput('whatsappNumber', d.whatsappNumber);
-    setInput('motionDisableFrom', d.motionDisableFrom);
-    setInput('motionDisableTo',   d.motionDisableTo);
-    setInput('nightScanMin',      d.nightScanMin);
+    setSel('whatsappEnabled',    d.whatsappEnabled);
+    setInput('whatsappNumber',   d.whatsappNumber);
+    setInput('whatsappStart',    d.whatsappStart);
+    setInput('whatsappStop',     d.whatsappStop);
+    setInput('whatsappCooldown', d.whatsappCooldown !== undefined ? d.whatsappCooldown : 10);
+    // Load manual bookings into calendar
+    manualBookings = Array.isArray(d.manualBookings) ? d.manualBookings : [];
+    renderCalendar();
 
     // Calendar section — load icalUrls array (or legacy single icalUrl)
     if (Array.isArray(d.icalUrls) && d.icalUrls.length > 0) {
@@ -460,18 +807,108 @@
         document.getElementById('c-cancel-wrap').style.display   = 'block';
       }
 
-      document.getElementById('contract-section').style.display = 'block';
+      document.getElementById('contract-section').style.display   = 'block';
+      document.getElementById('change-pin-section').style.display = 'block';
+      document.getElementById('device-mgmt-section').style.display = 'block';
     }
 
-    if (d.lastScanTime || d.lastScanCount !== '') {
-      const el = document.getElementById('last-scan-info');
-      el.innerHTML = '<b>Last scan:</b> ' + (d.lastScanTime || '—') + ' &nbsp;·&nbsp; <b>Devices found:</b> ' + (d.lastScanCount !== '' ? d.lastScanCount : '—');
-      el.style.display = 'block';
-    }
+
     if (d.lastPM25 !== '') {
       const el = document.getElementById('pm-info');
       el.innerHTML = '<b>Last PM2.5:</b> ' + d.lastPM25 + ' µg/m³' + (d.lastPM10 !== '' ? ' &nbsp;·&nbsp; <b>PM10:</b> ' + d.lastPM10 + ' µg/m³' : '') + '<div style="color:#607d8b;font-size:12px;margin-top:4px;">Normal indoor air: below 12 µg/m³. Cigarette smoke typically causes readings above 150 µg/m³.</div>';
       el.style.display = 'block';
+    }
+
+    // Show peripherals section if logged in
+    document.getElementById('peripherals-section').style.display = '';
+    // Fetch peripherals from the response data and render
+    if (d.peripherals) {
+      renderPeripheralSettings(d.peripherals);
+    }
+  }
+
+  function renderPeripheralSettings(peripherals) {
+    const container = document.getElementById('peripherals-list');
+    if (!peripherals || peripherals.length === 0) {
+      container.innerHTML = '<p style="color:#607d8b;font-size:13px;">No peripherals paired yet.</p>';
+      return;
+    }
+
+    let html = '';
+    for (const p of peripherals) {
+      const typeName = p.type.replace(/^Espnow/i, '').replace(/([A-Z])/g, ' $1').trim();
+      html += '<div style="background:#0d1b2a;border:1px solid #1e3a5f;border-radius:8px;padding:14px;margin-bottom:10px;">';
+      html += '  <div style="display:flex;justify-content:space-between;align-items:center;">';
+      html += '    <div>';
+      html += '      <div style="color:#4fc3f7;font-weight:bold;font-size:13px;">' + typeName + '</div>';
+      html += '      <div style="color:#607d8b;font-size:11px;">MAC: ' + (p.mac || 'Unknown') + '</div>';
+      // Battery indicator
+      if (p.battery != null) {
+        const bv = parseFloat(p.battery);
+        const bPct = Math.max(0, Math.min(100, Math.round((bv - 3.0) / (4.2 - 3.0) * 100)));
+        const bColor = bPct > 50 ? '#2d6a4f' : bPct > 20 ? '#e65100' : '#c62828';
+        html += '      <div style="color:' + bColor + ';font-size:11px;margin-top:2px;">\uD83D\uDD0B ' + bv.toFixed(2) + 'V (' + bPct + '%)</div>';
+      }
+      html += '    </div>';
+      html += '    <div style="font-size:12px;color:' + (p.active ? '#2d6a4f' : '#c62828') + ';">';
+      html += '      ' + (p.active ? 'Active' : 'Inactive (upgrade required)');
+      html += '    </div>';
+      html += '  </div>';
+      html += '  <div style="margin-top:10px;display:flex;gap:8px;">';
+      html += '    <input type="text" id="loc-' + p.mac + '" value="' + (p.location || '') + '" placeholder="Location (e.g. Bedroom 1)" style="flex:1;padding:8px 10px;border:1px solid #1e3a5f;border-radius:6px;background:#1a2a3a;color:#fff;font-size:13px;">';
+      html += '    <button onclick="savePeripheralLocation(\'' + p.mac + '\')" style="background:#4fc3f7;color:#0d1b2a;border:none;border-radius:6px;padding:8px 14px;font-size:13px;font-weight:bold;cursor:pointer;">Save</button>';
+      html += '    <button onclick="removePeripheral(\'' + p.mac + '\')" style="background:#c62828;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;font-weight:bold;cursor:pointer;">Remove</button>';
+      html += '  </div>';
+      html += '</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  async function rebootDevice() {
+    if (!confirm("Send reboot command to device? It will restart within 60 seconds.")) return;
+    const btn = document.getElementById("reboot-btn");
+    const msg = document.getElementById("reboot-msg");
+    btn.disabled = true;
+    btn.textContent = "Sending...";
+    try {
+      const r = await fetch(`${SCRIPT_URL}?action=reboot&deviceID=${enc(deviceID)}&pin=${enc(clientPin)}`);
+      const d = await r.json();
+      if (d.ok) {
+        msg.style.color = "#4caf50";
+        msg.textContent = "✅ " + d.message;
+      } else {
+        msg.style.color = "#ef5350";
+        msg.textContent = "❌ " + (d.error || "Failed to send reboot command.");
+      }
+    } catch(e) {
+      msg.style.color = "#ef5350";
+      msg.textContent = "❌ Network error. Try again.";
+    }
+    msg.style.display = "block";
+    btn.disabled = false;
+    btn.textContent = "🔄 Reboot Device";
+  }
+
+  async function removePeripheral(mac) {
+    if (!confirm("Remove this peripheral? It will need to be re-paired.")) return;
+    const r = await fetch(`${SCRIPT_URL}?action=removePeripheral&deviceID=${enc(deviceID)}&pin=${enc(clientPin)}&periMac=${enc(mac)}`);
+    const d = await r.json();
+    if (d.ok) {
+      alert("Peripheral removed.");
+      location.reload();
+    } else {
+      alert(d.error || "Failed to remove peripheral.");
+    }
+  }
+
+  async function savePeripheralLocation(mac) {
+    const loc = document.getElementById('loc-' + mac).value;
+    const resp = await fetch(SCRIPT_URL + '?action=updatePeripheral&deviceID=' + encodeURIComponent(deviceID) + '&pin=' + encodeURIComponent(clientPin) + '&periMac=' + encodeURIComponent(mac) + '&location=' + encodeURIComponent(loc));
+    const data = await resp.json();
+    if (data.ok) {
+      alert('Location saved!');
+    } else {
+      alert('Error: ' + (data.error || 'Unknown'));
     }
   }
 
@@ -485,13 +922,17 @@
       alertStart:    val('alertStart'),  alertStop:     val('alertStop'),
       cooldown:      val('cooldown'),    motionEnabled: val('motionEnabled'),
       motionStart:   val('motionStart'), motionStop:    val('motionStop'),
-      smokeEnabled:  val('smokeEnabled'),soundEnabled:  val('soundEnabled'),
-      soundStart:    val('soundStart'),  soundStop:     val('soundStop'),
+      smokeEnabled:  val('smokeEnabled'), soundEnabled:       val('soundEnabled'),
+      soundStart:    val('soundStart'),   soundStop:          val('soundStop'),
+      soundThresholdDay:   val('soundThresholdDay'),
+      soundThresholdNight: val('soundThresholdNight'),
+      nightSoundStart:     val('nightSoundStart'),
+      nightSoundStop:      val('nightSoundStop'),
       tempHigh:      val('tempHigh'),    tempLow:       val('tempLow'),
       humidHigh:     val('humidHigh'),
-      whatsappEnabled: val('whatsappEnabled'), whatsappNumber: val('whatsappNumber'),
-      motionDisableFrom: val('motionDisableFrom'), motionDisableTo: val('motionDisableTo'),
-      nightScanMin:  val('nightScanMin'),
+      whatsappEnabled:  val('whatsappEnabled'),  whatsappNumber:   val('whatsappNumber'),
+      whatsappStart:    val('whatsappStart'),    whatsappStop:     val('whatsappStop'),
+      whatsappCooldown: val('whatsappCooldown'),
     });
 
     try {
@@ -599,6 +1040,84 @@
     } catch(e) { show('cal-err', 'Sync failed. Check your iCal URLs are correct.'); }
   }
 
+  // ── CHANGE DEVICE PIN ──────────────────────────────────────
+  function toggleField(id, eyeId) {
+    const inp = document.getElementById(id);
+    const eye = document.getElementById(eyeId);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    eye.textContent = inp.type === 'password' ? '👁' : '🙈';
+  }
+
+  async function changeDevicePin() {
+    hideMsg('cp-ok'); hideMsg('cp-err');
+    const current = val('cp-current');
+    const newPin  = val('cp-new');
+    const confirm = val('cp-confirm');
+    if (!current || !newPin || !confirm) { show('cp-err', 'Please fill in all PIN fields.'); return; }
+    if (newPin !== confirm) { show('cp-err', 'New PINs do not match.'); return; }
+    if (!/^\d{6}$/.test(newPin)) { show('cp-err', 'New PIN must be exactly 6 digits.'); return; }
+    try {
+      const r = await fetch(`${SCRIPT_URL}?action=changePin&deviceID=${enc(deviceID)}&currentPin=${enc(current)}&newPin=${enc(newPin)}&confirmPin=${enc(confirm)}`);
+      const d = await r.json();
+      if (d.ok) {
+        clientPin = newPin;
+        sessionStorage.setItem('tc_pin', newPin);
+        show('cp-ok', '✅ Device PIN updated successfully.');
+        document.getElementById('cp-current').value = '';
+        document.getElementById('cp-new').value = '';
+        document.getElementById('cp-confirm').value = '';
+      } else { show('cp-err', d.error || 'Failed to update PIN.'); }
+    } catch(e) { show('cp-err', 'Connection error. Try again.'); }
+  }
+
+  async function forgotDevicePin() {
+    if (!confirm('Send a PIN reset link to the email address on your account?')) return;
+    try {
+      const r = await fetch(`${SCRIPT_URL}?action=forgotPin&type=device&deviceID=${enc(deviceID)}`);
+      const d = await r.json();
+      show('cp-ok', '📧 ' + (d.message || 'Reset link sent. Check your email.'));
+    } catch(e) { show('cp-err', 'Connection error. Try again.'); }
+  }
+
+  // ── HANDLE RESET TOKEN IN URL ──────────────────────────────
+  // If page loaded with ?resetToken=..., show inline reset form
+  (function checkResetToken() {
+    const params = new URLSearchParams(window.location.search);
+    const token  = params.get('resetToken');
+    if (!token) return;
+
+    // Replace the login section with a reset form
+    document.getElementById('login-section').innerHTML =
+      '<div class="sec-title">🔑 Reset Your Device PIN</div>'
+    + '<div class="sec-note">Enter your new 6-digit PIN below. This link expires in 1 hour.</div>'
+    + '<div id="rt-ok" class="msg-ok"></div>'
+    + '<div id="rt-err" class="msg-err"></div>'
+    + '<label>New PIN</label>'
+    + '<input type="password" id="rt-new" placeholder="New 6-digit PIN" maxlength="6" inputmode="numeric">'
+    + '<label>Confirm PIN</label>'
+    + '<input type="password" id="rt-confirm" placeholder="Repeat PIN" maxlength="6" inputmode="numeric">'
+    + '<button class="btn" onclick="submitReset(\'' + token + '\')">Set New PIN</button>';
+  })();
+
+  async function submitReset(token) {
+    hideMsg('rt-ok'); hideMsg('rt-err');
+    const newPin  = document.getElementById('rt-new')    ? document.getElementById('rt-new').value.trim()    : '';
+    const confirm = document.getElementById('rt-confirm') ? document.getElementById('rt-confirm').value.trim() : '';
+    if (!newPin || !confirm) { show('rt-err', 'Please fill in both fields.'); return; }
+    if (newPin !== confirm)  { show('rt-err', 'PINs do not match.'); return; }
+    if (!/^\d{6}$/.test(newPin)) { show('rt-err', 'PIN must be exactly 6 digits.'); return; }
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const dID = params.get('deviceID') || '';
+      const r = await fetch(`${SCRIPT_URL}?action=resetPinWithToken&token=${enc(token)}&newPin=${enc(newPin)}&confirmPin=${enc(confirm)}&deviceID=${enc(dID)}`);
+      const d = await r.json();
+      if (d.ok) {
+        show('rt-ok', '✅ PIN reset successfully! You can now log in with your new PIN.');
+        setTimeout(() => { window.location.href = window.location.pathname + '?deviceID=' + dID; }, 2500);
+      } else { show('rt-err', d.error || 'Reset failed. The link may have expired.'); }
+    } catch(e) { show('rt-err', 'Connection error. Try again.'); }
+  }
+
   async function saveInfo() {
     const btn = document.getElementById('info-btn');
     hideMsg('info-ok'); hideMsg('info-err');
@@ -693,6 +1212,14 @@
     if (msg !== '') el.textContent = msg;
     el.style.display = 'block';
   }
+  function toggleSection(bodyId, arrowId) {
+    const body  = document.getElementById(bodyId);
+    const arrow = document.getElementById(arrowId);
+    const open  = body.style.display !== 'none';
+    body.style.display  = open ? 'none' : 'block';
+    arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+  }
+
   function setInput(id, v) {
     if (v === undefined || v === null || v === '') return;
     document.getElementById(id).value = v;
